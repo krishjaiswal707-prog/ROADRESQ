@@ -1,10 +1,10 @@
-// 1. Traffic Contracts
+// --- 1. Basic Coordinates ---
 export interface RoadCoordinate {
   latitude: number;
   longitude: number;
 }
 
-export type CongestionLevel = 'Low' | 'Medium' | 'High' | 'Severe';
+export type CongestionLevel = 'Low' | 'Medium' | 'High' | 'Severe' | 'LOW' | 'MODERATE' | 'HIGH' | 'SEVERE';
 
 export interface RoadSegment {
   segmentId: string;
@@ -19,7 +19,6 @@ export interface RoadSegment {
   timestamp: string;
 }
 
-// Legacy alias for existing dashboard widgets
 export interface CongestionSegment {
   segmentId: string;
   name: string;
@@ -30,7 +29,7 @@ export interface CongestionSegment {
   isSimulated: boolean;
 }
 
-// 2. City & Hospital Contracts
+// --- 2. City & Hospitals ---
 export interface City {
   cityId: string;
   cityName: string;
@@ -48,9 +47,12 @@ export interface Hospital {
   lng: number;
   emergencyBeds: number;
   traumaLevel: number;
+  phone?: string;
+  address?: string;
+  hasEmergencyDepartment?: boolean;
 }
 
-// 3. Ambulance Contracts
+// --- 3. Ambulances & Simulation ---
 export type AmbulanceStatus = 'AVAILABLE' | 'ASSIGNED' | 'EN_ROUTE' | 'ARRIVED' | 'PAUSED';
 
 export interface AmbulanceData {
@@ -62,18 +64,7 @@ export interface AmbulanceData {
   speedKmph?: number;
 }
 
-export interface Ambulance {
-  ambulanceId: string;
-  cityId: string;
-  status: AmbulanceStatus;
-  currentLocation: RoadCoordinate;
-  destination: RoadCoordinate | null;
-  greenCorridorActive: boolean;
-  speedKmph: number;
-  isSimulated: boolean;
-}
-
-// 4. Routing Contracts
+// --- 4. Routing ---
 export interface RouteOptimizationData {
   distanceKm: number;
   estimatedMinutes: number;
@@ -82,7 +73,19 @@ export interface RouteOptimizationData {
   pathCoordinates: [number, number][];
 }
 
-// 5. Signals & Corridor
+export interface RouteAlternative {
+  routeId: string;
+  name: string;
+  distanceKm: number;
+  trafficDurationMinutes: number;
+  normalDurationMinutes?: number;
+  timeSavedMinutes?: number;
+  congestionLevel: string;
+  recommendationReason: string;
+  pathCoordinates?: [number, number][];
+}
+
+// --- 5. Traffic Signals ---
 export interface TrafficSignal {
   signalId: string;
   name: string;
@@ -91,4 +94,47 @@ export interface TrafficSignal {
   isGreenCorridorOverridden: boolean;
   cycleDurationSeconds?: number;
   lastStateChange?: string;
+}
+
+// --- 6. Crane & Towing Assistance ---
+export interface CraneVehicle {
+  id: string;
+  cityId: string;
+  name: string;
+  serviceType: string;
+  capacityTons: number;
+  phone: string;
+  location: { lat: number; lng: number };
+  status: 'AVAILABLE' | 'ASSIGNED' | 'EN_ROUTE' | 'BUSY';
+}
+
+export interface CraneRequestItem {
+  requestId: string;
+  cityId: string;
+  citizenName: string;
+  contactPhone: string;
+  vehicleCategory: string;
+  breakdownType: string;
+  location: { name: string; lat: number; lng: number };
+  description: string;
+  assignedCraneId: string | null;
+  assignedCraneName: string | null;
+  status: string;
+  etaMinutes: number;
+  createdAt: string;
+}
+
+// --- 7. Road Hazard & Bridge Management ---
+export interface RoadHazardItem {
+  hazardId: string;
+  cityId: string;
+  hazardType: 'POTHOLE' | 'DAMAGED_BRIDGE' | 'ROAD_CRACK' | 'WATERLOGGING' | 'OBSTRUCTION' | 'ACCIDENT_PRONE';
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  location: { name: string; lat: number; lng: number };
+  description: string;
+  reportedBy: string;
+  verificationStatus: 'SUBMITTED' | 'VERIFIED' | 'IN_REPAIR' | 'REPAIRED' | 'REJECTED';
+  isBlockingTraffic: boolean;
+  assignedMaintenanceTeam?: string;
+  reportedAt: string;
 }

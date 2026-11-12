@@ -26,11 +26,17 @@ const trafficRoutes = require('./routes/trafficRoutes');
 const emergencyRoutes = require('./routes/emergencyRoutes')(routeOptimizer, simulationEngine);
 const cityRoutes = require('./routes/cityRoutes');
 const routingRoutes = require('./routes/routingRoutes');
+const hospitalRoutes = require('./modules/hospitals/hospital.routes');
+const craneRoutes = require('./routes/craneRoutes');
+const hazardRoutes = require('./routes/hazardRoutes');
 
 app.use('/api/traffic', trafficRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/cities', cityRoutes);
 app.use('/api/routes', routingRoutes);
+app.use('/api/hospitals', hospitalRoutes);
+app.use('/api/crane', craneRoutes);
+app.use('/api/hazards', hazardRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({
