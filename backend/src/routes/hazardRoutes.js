@@ -75,3 +75,4 @@ router.patch('/:hazardId/verify', async (req, res) => {
 });
 
 module.exports = router;
+

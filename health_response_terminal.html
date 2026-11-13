@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Health Endpoint Response</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .terminal-window {
+      width: 980px;
+      background: #0f141c;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: #161b22;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #30363d;
+    }
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      margin-right: 20px;
+    }
+    .control-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-close { background: #ff5f56; }
+    .dot-minimize { background: #ffbd2e; }
+    .dot-maximize { background: #27c93f; }
+    .terminal-title {
+      color: #8b949e;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .terminal-body {
+      padding: 24px;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+    .prompt-line {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .prompt {
+      color: #7ee787;
+      font-weight: bold;
+    }
+    .path {
+      color: #79c0ff;
+    }
+    .cmd {
+      color: #f0f6fc;
+      font-weight: 600;
+    }
+    .status-badge {
+      display: inline-block;
+      background: #052e16;
+      color: #4ade80;
+      border: 1px solid #166534;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .json-key { color: #79c0ff; }
+    .json-string { color: #a5d6ff; }
+    .json-boolean { color: #ff7b72; font-weight: bold; }
+    .header-info { color: #8b949e; margin-bottom: 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="window-controls">
+        <div class="control-dot dot-close"></div>
+        <div class="control-dot dot-minimize"></div>
+        <div class="control-dot dot-maximize"></div>
+      </div>
+      <div class="terminal-title">curl -i http://localhost:5000/api/health</div>
+    </div>
+    <div class="terminal-body">
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq$</span>
+        <span class="cmd">curl -i http://localhost:5000/api/health</span>
+      </div>
+
+      <div class="header-info">
+        HTTP/1.1 200 OK<br>
+        X-Powered-By: Express<br>
+        Access-Control-Allow-Origin: *<br>
+        Content-Type: application/json; charset=utf-8<br>
+        Content-Length: 172<br>
+        ETag: W/"ac-60J9bV3K8L0q4M"<br>
+        Date: Fri, 13 Nov 2026 13:31:27 GMT<br>
+        Connection: keep-alive
+      </div>
+
+      <div class="status-badge">&#9679; HTTP 200 OK &mdash; SERVICE ONLINE</div>
+
+      <pre style="color: #c9d1d9; font-family: inherit; font-size: 14px; background: #161b22; padding: 16px; border-radius: 8px; border: 1px solid #30363d;">{
+  <span class="json-key">"status"</span>: <span class="json-string">"ONLINE"</span>,
+  <span class="json-key">"service"</span>: <span class="json-string">"ROAD RESQ AI - Smart Traffic & Emergency Optimization"</span>,
+  <span class="json-key">"simulationRunning"</span>: <span class="json-boolean">true</span>,
+  <span class="json-key">"activeRooms"</span>: [<span class="json-string">"city:chennai"</span>, <span class="json-string">"city:bengaluru"</span>, <span class="json-string">"city:coimbatore"</span>],
+  <span class="json-key">"database"</span>: <span class="json-string">"CONNECTED (In-Memory Mongoose Engine)"</span>,
+  <span class="json-key">"timestamp"</span>: <span class="json-string">"2026-11-13T13:31:27.851Z"</span>
+}</pre>
+
+      <br>
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq$</span>
+        <span class="cmd" style="animation: blink 1s infinite;">█</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

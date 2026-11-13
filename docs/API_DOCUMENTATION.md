@@ -32,3 +32,4 @@ All endpoints are hosted at `http://localhost:5000/api`.
 
 ### 6. Hospital Discovery
 - `GET /api/hospitals/discover?cityId=chennai` - OSM Overpass live discovery with verified trauma center fallback.
+

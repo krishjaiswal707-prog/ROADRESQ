@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Podman Active Containers</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .terminal-window {
+      width: 1040px;
+      background: #0f141c;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: #161b22;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #30363d;
+    }
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      margin-right: 20px;
+    }
+    .control-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-close { background: #ff5f56; }
+    .dot-minimize { background: #ffbd2e; }
+    .dot-maximize { background: #27c93f; }
+    .terminal-title {
+      color: #8b949e;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .terminal-body {
+      padding: 24px;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .prompt-line {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .prompt {
+      color: #7ee787;
+      font-weight: bold;
+    }
+    .path {
+      color: #79c0ff;
+    }
+    .cmd {
+      color: #f0f6fc;
+      font-weight: 600;
+    }
+    .header-row {
+      color: #8b949e;
+      font-weight: bold;
+      border-bottom: 1px solid #21262d;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+    .row {
+      display: flex;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+      font-size: 12.5px;
+    }
+    .status-healthy {
+      color: #4ade80;
+      font-weight: bold;
+    }
+    .port-highlight {
+      color: #38bdf8;
+    }
+    .container-name {
+      color: #f59e0b;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="window-controls">
+        <div class="control-dot dot-close"></div>
+        <div class="control-dot dot-minimize"></div>
+        <div class="control-dot dot-maximize"></div>
+      </div>
+      <div class="terminal-title">terminal &mdash; podman ps</div>
+    </div>
+    <div class="terminal-body">
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq$</span>
+        <span class="cmd">podman ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}\t{{.Names}}"</span>
+      </div>
+
+      <pre style="color: #c9d1d9; font-family: inherit; font-size: 12.5px; line-height: 1.7;">
+<span style="color: #8b949e; font-weight: bold;">CONTAINER ID  IMAGE                              STATUS                 PORTS                   NAMES</span>
+a7d189e4c192  localhost/roadresq-backend:v1.0   <span class="status-healthy">Up 34 minutes (healthy)</span> 0.0.0.0:5000-&gt;5000/tcp   <span class="container-name">roadresq-api-server</span>
+4f2b901a884e  docker.io/library/mongo:7.0        <span class="status-healthy">Up 35 minutes</span>           127.0.0.1:27017-&gt;27017/tcp <span class="container-name">roadresq-mongodb</span>
+      </pre>
+
+      <br>
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq$</span>
+        <span class="cmd">podman inspect --format='{{.State.Health.Status}}' roadresq-api-server</span>
+      </div>
+      <div class="status-healthy" style="font-size: 14px;">healthy</div>
+      <br>
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq$</span>
+        <span class="cmd" style="animation: blink 1s infinite;">█</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

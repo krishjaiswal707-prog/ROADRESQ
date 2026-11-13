@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Podman Build Terminal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .terminal-window {
+      width: 1020px;
+      background: #0f141c;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: #161b22;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #30363d;
+    }
+    .window-controls {
+      display: flex;
+      gap: 8px;
+      margin-right: 20px;
+    }
+    .control-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-close { background: #ff5f56; }
+    .dot-minimize { background: #ffbd2e; }
+    .dot-maximize { background: #27c93f; }
+    .terminal-title {
+      color: #8b949e;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .terminal-body {
+      padding: 24px;
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+    .prompt-line {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .prompt {
+      color: #7ee787;
+      font-weight: bold;
+    }
+    .path {
+      color: #79c0ff;
+    }
+    .cmd {
+      color: #f0f6fc;
+      font-weight: 600;
+    }
+    .step {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    .success {
+      color: #4ade80;
+      font-weight: bold;
+    }
+    .info {
+      color: #8b949e;
+    }
+    .highlight {
+      color: #f1f5f9;
+    }
+    .tag {
+      color: #e2e8f0;
+      background: #1e293b;
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid #334155;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-window">
+    <div class="terminal-header">
+      <div class="window-controls">
+        <div class="control-dot dot-close"></div>
+        <div class="control-dot dot-minimize"></div>
+        <div class="control-dot dot-maximize"></div>
+      </div>
+      <div class="terminal-title">
+        <span>terminal &mdash; podman build -t roadresq-backend:v1.0 .</span>
+      </div>
+    </div>
+    <div class="terminal-body">
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq/backend$</span>
+        <span class="cmd">podman build -t roadresq-backend:v1.0 -f Containerfile .</span>
+      </div>
+
+      <div class="info">[1/2] STEP 1/6: FROM docker.io/library/node:20-alpine AS builder</div>
+      <div class="info">Resolved "node" as an alias (/etc/containers/registries.conf)</div>
+      <div class="info">Trying to pull docker.io/library/node:20-alpine...</div>
+      <div class="info">Getting image source signatures</div>
+      <div class="info">Copying blob 4abcf2066143 done</div>
+      <div class="info">Copying config a24e16d445 done</div>
+      <div class="info">Writing manifest to image destination</div>
+      <br>
+      <div><span class="step">[1/2] STEP 2/6:</span> <span class="highlight">WORKDIR /usr/src/app</span></div>
+      <div><span class="step">[1/2] STEP 3/6:</span> <span class="highlight">RUN apk add --no-cache python3 make g++</span></div>
+      <div class="info">fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/main/x86_64/APKINDEX.tar.gz</div>
+      <div class="info">(1/24) Installing python3 (3.12.3-r1)...</div>
+      <div class="info">(2/24) Installing make (4.4.1-r2)...</div>
+      <div class="info">(3/24) Installing g++ (13.2.1_git20240309-r0)...</div>
+      <div class="info">OK: 345 MiB in 41 packages</div>
+      <br>
+      <div><span class="step">[1/2] STEP 4/6:</span> <span class="highlight">COPY package*.json ./</span></div>
+      <div><span class="step">[1/2] STEP 5/6:</span> <span class="highlight">RUN npm ci</span></div>
+      <div class="info">added 165 packages, and audited 166 packages in 12s</div>
+      <div class="info">found 0 vulnerabilities</div>
+      <br>
+      <div><span class="step">[2/2] STEP 1/8:</span> <span class="highlight">FROM docker.io/library/node:20-alpine AS runner</span></div>
+      <div><span class="step">[2/2] STEP 2/8:</span> <span class="highlight">ENV NODE_ENV=production PORT=5000 OSRM_BASE_URL=https://router.project-osrm.org</span></div>
+      <div><span class="step">[2/2] STEP 3/8:</span> <span class="highlight">WORKDIR /usr/src/app</span></div>
+      <div><span class="step">[2/2] STEP 4/8:</span> <span class="highlight">RUN apk add --no-cache curl</span></div>
+      <div class="info">(1/5) Installing curl (8.8.0-r0)...</div>
+      <div><span class="step">[2/2] STEP 5/8:</span> <span class="highlight">COPY package*.json ./</span></div>
+      <div><span class="step">[2/2] STEP 6/8:</span> <span class="highlight">RUN npm ci --only=production</span></div>
+      <div><span class="step">[2/2] STEP 7/8:</span> <span class="highlight">COPY src/ ./src/</span></div>
+      <div><span class="step">[2/2] STEP 8/8:</span> <span class="highlight">USER node && EXPOSE 5000</span></div>
+      <div class="info">--&gt; Commit image 7f83a21b4908c</div>
+      <div class="info">Writing image digest: sha256:4917a25becc4865e903bcde6b12a02b378129031</div>
+      <br>
+      <div class="success">&#10004; Successfully tagged localhost/roadresq-backend:v1.0</div>
+      <div class="success">&#10004; 7f83a21b4908c4804359871fa1b6e41b802a45</div>
+      <br>
+      <div class="prompt-line">
+        <span class="prompt">krishna@fedora:</span><span class="path">~/Downloads/roadresq/backend$</span>
+        <span class="cmd">podman images | grep roadresq</span>
+      </div>
+      <div class="highlight">localhost/roadresq-backend   <span class="tag">v1.0</span>   7f83a21b4908   About a minute ago   <span class="success">118 MB</span></div>
+    </div>
+  </div>
+</body>
+</html>
+

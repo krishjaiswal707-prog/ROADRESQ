@@ -50,3 +50,4 @@ Open **`http://localhost:5173`** in Chrome/Edge.
 2. Notice the real discovered hospital facilities loaded from OpenStreetMap Overpass.
 3. Type in the search box (e.g. *"Apollo"* or *"General"*) or click **"Level 1 Only"** to filter facilities.
 4. Click any hospital in the list to inspect bed availability and view it highlighted on the map.
+

@@ -180,3 +180,4 @@ export function CraneAssistant({ cityId }: CraneAssistantProps) {
     </div>
   );
 }
+

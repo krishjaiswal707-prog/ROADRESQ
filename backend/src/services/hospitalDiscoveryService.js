@@ -94,3 +94,4 @@ class HospitalDiscoveryService {
 }
 
 module.exports = new HospitalDiscoveryService();
+

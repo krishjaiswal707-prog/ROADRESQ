@@ -34,3 +34,4 @@ const RoadHazardSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('RoadHazard', RoadHazardSchema);
+

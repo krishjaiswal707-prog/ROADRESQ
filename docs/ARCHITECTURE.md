@@ -29,3 +29,4 @@
 3. **Crane & Vehicle Breakdown Recovery:** Request intake for immobilized vehicles and automated nearest-crane dispatch.
 4. **Bridge, Pothole & Road Hazard Patrol:** Citizen hazard reporting, administrator verification, and road blockage rerouting.
 5. **Hospital Discovery:** Real hospital search via OpenStreetMap Overpass API with local verified trauma registries.
+

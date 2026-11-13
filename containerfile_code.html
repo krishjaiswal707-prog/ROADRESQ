@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Containerfile Code View</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Consolas', 'Courier New', monospace;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .window {
+      width: 950px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    .title-bar {
+      background: #21262d;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #30363d;
+    }
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: 18px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+    .filename {
+      color: #8b949e;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    pre {
+      padding: 24px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .comment { color: #8b949e; font-style: italic; }
+    .instruction { color: #ff7b72; font-weight: bold; }
+    .variable { color: #79c0ff; }
+    .string { color: #a5d6ff; }
+    .stage { color: #7ee787; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">
+      <div class="buttons">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="filename">Containerfile &mdash; ROAD RESQ AI Backend Blueprint</div>
+    </div>
+    <pre><code><span class="comment"># ==============================================================================</span>
+<span class="comment"># ROAD RESQ AI – Backend Application Blueprint (Containerfile / Dockerfile)</span>
+<span class="comment"># Multi-stage container build for minimal footprint, security & production readiness.</span>
+<span class="comment"># ==============================================================================</span>
+
+<span class="comment"># ------------------------------------------------------------------------------</span>
+<span class="comment"># STAGE 1: Dependency Builder</span>
+<span class="comment"># ------------------------------------------------------------------------------</span>
+<span class="instruction">FROM</span> node:20-alpine <span class="instruction">AS</span> <span class="stage">builder</span>
+
+<span class="instruction">WORKDIR</span> /usr/src/app
+
+<span class="comment"># Install native compilation toolchain</span>
+<span class="instruction">RUN</span> apk add --no-cache python3 make g++
+
+<span class="comment"># Copy package specifications for optimal Docker layer caching</span>
+<span class="instruction">COPY</span> package*.json ./
+<span class="instruction">RUN</span> npm ci
+
+<span class="comment"># ------------------------------------------------------------------------------</span>
+<span class="comment"># STAGE 2: Production Runtime</span>
+<span class="comment"># ------------------------------------------------------------------------------</span>
+<span class="instruction">FROM</span> node:20-alpine <span class="instruction">AS</span> <span class="stage">runner</span>
+
+<span class="instruction">LABEL</span> org.opencontainers.image.title=<span class="string">"ROAD RESQ AI - Backend Engine"</span> \
+      org.opencontainers.image.version=<span class="string">"1.0.0"</span> \
+      org.opencontainers.image.authors=<span class="string">"Team ROAD RESQ"</span>
+
+<span class="instruction">ENV</span> <span class="variable">NODE_ENV</span>=production \
+    <span class="variable">PORT</span>=5000 \
+    <span class="variable">DEFAULT_CITY_ID</span>=chennai \
+    <span class="variable">OSRM_BASE_URL</span>=https://router.project-osrm.org
+
+<span class="instruction">WORKDIR</span> /usr/src/app
+
+<span class="instruction">RUN</span> apk add --no-cache curl
+
+<span class="comment"># Copy production runtime modules</span>
+<span class="instruction">COPY</span> package*.json ./
+<span class="instruction">RUN</span> npm ci --only=production && npm cache clean --force
+
+<span class="comment"># Copy backend source tree</span>
+<span class="instruction">COPY</span> src/ ./src/
+
+<span class="comment"># Security hardening: Execute with non-root unprivileged user</span>
+<span class="instruction">USER</span> node
+
+<span class="instruction">EXPOSE</span> 5000
+
+<span class="comment"># Real-time healthcheck probe</span>
+<span class="instruction">HEALTHCHECK</span> --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  <span class="instruction">CMD</span> curl -f http://localhost:5000/api/health || exit 1
+
+<span class="instruction">CMD</span> [<span class="string">"node"</span>, <span class="string">"src/server.js"</span>]</code></pre>
+  </div>
+</body>
+</html>
