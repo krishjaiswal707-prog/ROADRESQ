@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background-color: #0b0f19;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .window {
+    width: 1020px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+    overflow: hidden;
+  }
+  .header {
+    background: #161b22;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #30363d;
+  }
+  .traffic-lights {
+    display: flex;
+    gap: 8px;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .red { background: #ff5f56; }
+  .yellow { background: #ffbd2e; }
+  .green { background: #27c93f; }
+  .title {
+    color: #8b949e;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    background: #238636;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .body {
+    padding: 24px;
+    font-family: "JetBrains Mono", "Cascadia Code", ui-monospace, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c9d1d9;
+  }
+  .cmd-line {
+    margin-bottom: 16px;
+    color: #58a6ff;
+    font-weight: 600;
+  }
+  .prompt {
+    color: #7ee787;
+  }
+  .section-title {
+    color: #f0883e;
+    font-weight: bold;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #21262d;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  th {
+    text-align: left;
+    color: #8b949e;
+    padding: 8px 12px;
+    border-bottom: 1px solid #30363d;
+    font-weight: 600;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #21262d;
+  }
+  .highlight {
+    color: #7ee787;
+    font-weight: bold;
+  }
+  .healthy {
+    color: #3fb950;
+    font-weight: bold;
+  }
+  .img-id {
+    color: #d2a8ff;
+  }
+  .size {
+    color: #79c0ff;
+  }
+  .tag-latest {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="header">
+    <div class="traffic-lights">
+      <span class="dot red"></span>
+      <span class="dot yellow"></span>
+      <span class="dot green"></span>
+    </div>
+    <div class="title">
+      <span>🐧 PowerShell / Red Hat Podman &amp; Docker CLI</span>
+      <span class="badge">CONTAINER OPERATIONS VERIFIED</span>
+    </div>
+    <div style="width: 50px;"></div>
+  </div>
+
+  <div class="body">
+    <!-- SECTION 1: REGISTRY IMAGES -->
+    <div class="cmd-line">
+      <span class="prompt">PS C:\Users\krish\Downloads\roadresq&gt;</span> docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}"
+    </div>
+    <div class="section-title">📦 Container Images on Registry (GHCR / Local)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>REPOSITORY</th>
+          <th>TAG</th>
+          <th>IMAGE ID</th>
+          <th>SIZE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">ghcr.io/krishjaiswal707-prog/roadresq-backend</td>
+          <td><span class="tag-latest">v2.1</span></td>
+          <td class="img-id">49b1b501488f</td>
+          <td class="size">569 MB</td>
+        </tr>
+        <tr>
+          <td class="highlight">ghcr.io/krishjaiswal707-prog/roadresq-backend</td>
+          <td>latest</td>
+          <td class="img-id">85d3c6661566</td>
+          <td class="size">560 MB</td>
+        </tr>
+        <tr>
+          <td class="highlight">ghcr.io/krishjaiswal707-prog/roadresq-backend</td>
+          <td>v2</td>
+          <td class="img-id">85d3c6661566</td>
+          <td class="size">560 MB</td>
+        </tr>
+        <tr>
+          <td class="highlight">ghcr.io/krishjaiswal707-prog/roadresq-backend</td>
+          <td>v1</td>
+          <td class="img-id">85d3c6661566</td>
+          <td class="size">560 MB</td>
+        </tr>
+        <tr>
+          <td>roadresq-roadresq-app</td>
+          <td>latest</td>
+          <td class="img-id">49b1b501488f</td>
+          <td class="size">569 MB</td>
+        </tr>
+        <tr>
+          <td>docker.io/library/mongo</td>
+          <td>7.0</td>
+          <td class="img-id">884c055bff8b</td>
+          <td class="size">1.19 GB</td>
+        </tr>
+        <tr>
+          <td>docker.io/library/redis</td>
+          <td>7-alpine</td>
+          <td class="img-id">7f7d30b7fdd0</td>
+          <td class="size">58.5 MB</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- SECTION 2: ACTIVE CONTAINERS -->
+    <div class="cmd-line" style="margin-top: 24px;">
+      <span class="prompt">PS C:\Users\krish\Downloads\roadresq&gt;</span> docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}\t{{.Names}}"
+    </div>
+    <div class="section-title">⚡ Active Running Containers</div>
+    <table>
+      <thead>
+        <tr>
+          <th>CONTAINER ID</th>
+          <th>IMAGE</th>
+          <th>STATUS</th>
+          <th>PORTS</th>
+          <th>NAMES</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="img-id">4b767eb777c6</td>
+          <td class="highlight">roadresq-roadresq-app</td>
+          <td class="healthy">Up 10 minutes (healthy)</td>
+          <td>0.0.0.0:5000-&gt;5000/tcp, 0.0.0.0:5173-&gt;5173/tcp</td>
+          <td style="color: #fff; font-weight: bold;">roadresq-app</td>
+        </tr>
+        <tr>
+          <td class="img-id">4f1631130931</td>
+          <td>redis:7-alpine</td>
+          <td class="healthy">Up 7 hours (healthy)</td>
+          <td>0.0.0.0:6379-&gt;6379/tcp</td>
+          <td style="color: #fff;">roadresq-redis</td>
+        </tr>
+        <tr>
+          <td class="img-id">cd240fe66863</td>
+          <td>mongo:7.0</td>
+          <td class="healthy">Up 7 hours (healthy)</td>
+          <td>0.0.0.0:27017-&gt;27017/tcp</td>
+          <td style="color: #fff;">roadresq-mongodb</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
