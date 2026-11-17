@@ -1,32 +1,67 @@
-# ROAD RESQ AI – System Architecture
+# Architecture: ROAD RESQ AI System Design
 
-## 1. Overview
-**ROAD RESQ AI** is a free-first, intelligent traffic management and multi-agency emergency assistance system supporting Chennai, Bengaluru, and Coimbatore. It eliminates mandatory commercial map dependencies by using OpenStreetMap (OSM), Leaflet, OSRM road geometry, TomTom Traffic Flow API (free tier), and local in-memory/Atlas MongoDB.
+This document details the software architecture, communications flow, and container networking topology for the **ROAD RESQ AI** platform.
+
+---
+
+## 1. High-Level System Architecture
+
+ROAD RESQ AI integrates three logical academic modules designed for emergency vehicle clearance and traffic operations:
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                   REACT + TYPESCRIPT DASHBOARD                 │
-│   (React-Leaflet · OpenStreetMap Tiles · Lucide Emergency UI)  │
-└───────────────────────────────┬────────────────────────────────┘
-                                │ HTTP REST / WebSocket (Socket.IO)
-┌───────────────────────────────▼────────────────────────────────┐
-│                     EXPRESS.JS BACKEND                         │
-│  ├── Modules: Traffic, Ambulance, Crane, Hazards, Hospitals    │
-│  ├── Routing: Dijkstra & A* Engines + OSRM Integration         │
-│  └── Telemetry: City-Scoped Socket Rooms (city:chennai, etc.)  │
-└──────┬──────────────────┬──────────────────┬───────────────────┘
-       │                  │                  │
-┌──────▼──────┐    ┌──────▼──────┐    ┌──────▼──────┐
-│  OSRM API   │    │  TomTom API │    │   MongoDB   │
-│ Road Snapped│    │ Traffic Flow│    │ In-Memory / │
-│  Geometries │    │  Free Tier  │    │ Mongoose DB │
-└─────────────┘    └─────────────┘    └─────────────┘
+[ User Browser / Traffic Controller ]
+                |
+                v  (HTTP :5173 / WebSocket :5000)
++-----------------------------------------------------------------------------------+
+| ROAD RESQ AI CONTAINER (Podman OCI Image)                                         |
+|                                                                                   |
+|  +-------------------------------------+  +------------------------------------+  |
+|  | Frontend Tier (Port 5173)           |  | Backend Tier (Port 5000)           |  |
+|  | - React 19 + TypeScript + Vite      |  | - Express.js REST API              |  |
+|  | - Leaflet Real-time Map GIS         |  | - Socket.IO Real-time Server       |  |
+|  | - City Switcher (Chennai/Bengaluru) |  | - Live Traffic Simulation Loop     |  |
+|  +-------------------------------------+  +-----------------+------------------+  |
+|                                                             |                     |
+|                                            +----------------+------------------+  |
+|                                            | Routing Engine Service            |  |
+|                                            | - Dijkstra / A* Heuristics        |  |
+|                                            | - Dynamic Traffic Weighting       |  |
+|                                            | - Green Corridor Preemption       |  |
+|                                            +----------------+------------------+  |
+|                                                             |                     |
+|                                            +----------------+------------------+  |
+|                                            | Module Subsystems                 |  |
+|                                            | - Ambulance Triage (ALS/BLS)      |  |
+|                                            | - Crane Recovery Dispatch         |  |
+|                                            | - Road Hazard Monitoring          |  |
+|                                            | - Hospital Directory (Overpass)   |  |
+|                                            +----------------+------------------+  |
++-------------------------------------------------------------|---------------------+
+                                                              v
++-----------------------------------------------------------------------------------+
+| PERSISTENT DATABASE TIER                                                          |
+|  - MongoDB Container (Port 27017)                                                 |
+|  - Backed by Podman Persistent Volume: roadresq-mongo-data                        |
+|  - Auto-fallback to MongoMemoryServer when offline                                |
++-----------------------------------------------------------------------------------+
 ```
 
-## 2. Key Modules
-1. **Smart Traffic & Green Corridor Engine:** Live corridor delay calculation, simulated signal preemption, and dynamic time-savings.
-2. **Crowdsourced Ambulance Dispatch:** Emergency severity matching (ALS/BLS), Dijkstra traffic-weighted routing, and real-time movement beacon.
-3. **Crane & Vehicle Breakdown Recovery:** Request intake for immobilized vehicles and automated nearest-crane dispatch.
-4. **Bridge, Pothole & Road Hazard Patrol:** Citizen hazard reporting, administrator verification, and road blockage rerouting.
-5. **Hospital Discovery:** Real hospital search via OpenStreetMap Overpass API with local verified trauma registries.
+---
 
+## 2. Capstone Module Breakdown
+
+### Module 1: Traffic and Infrastructure Intelligence
+- **Dijkstra & A\* Engine:** Multi-attribute path cost calculation incorporating live speed drops.
+- **Green Corridor Signal Synchronization:** Preempts upcoming traffic light cycles along the calculated emergency path.
+- **Road Hazard Patrol:** Tracks structural damage, waterlogging, or blocked lanes, modifying graph adjacency weights dynamically.
+
+### Module 2: Emergency and Assistance Management
+- **Ambulance Triage Matching:** Matches patient urgency (`Critical / High / Moderate`) with vehicle telemetry (`ALS / BLS`).
+- **Heavy Towing & Crane Dispatch:** Distance-scored crane allocation to rapidly clear obstructions.
+- **Hospital Directory:** Real-time lookup of nearest trauma centers, ICU capacity, and oxygen facilities using OpenStreetMap data.
+
+### Module 3: Linux and Podman Container Operations
+- **Containerfile Architecture:** Multi-stage build separating compile-time dependencies from the production runtime.
+- **Container Networking:** Custom bridge network providing DNS resolution between containers (`roadresq-net`).
+- **Storage Management:** Volume mounting with SELinux `:Z` flag preserving state across container lifecycle operations.
+- **Image Distribution:** Tagged and packaged for GitHub Container Registry (`ghcr.io/kj0232-blip/roadresq-backend`).
