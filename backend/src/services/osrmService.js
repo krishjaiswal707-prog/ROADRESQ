@@ -1,6 +1,11 @@
 const axios = require('axios');
+const https = require('https');
+const http = require('http');
 const roadGraphEngine = require('../modules/routing/roadGraphEngine');
 const { dijkstraShortestPath } = require('../modules/routing/algorithms/dijkstraEngine');
+
+const httpsAgent = new https.Agent({ family: 4, keepAlive: true });
+const httpAgent = new http.Agent({ family: 4, keepAlive: true });
 
 /**
  * OSRM Road-based Routing Service
@@ -27,8 +32,11 @@ class OSRMService {
     const url = `${this.baseUrl}/route/v1/driving/${coordsStr}?overview=full&geometries=geojson&alternatives=${options.alternatives ? 'true' : 'false'}`;
 
     try {
+      const isHttps = url.startsWith('https:');
       const response = await axios.get(url, {
         timeout: this.timeoutMs,
+        httpsAgent: isHttps ? httpsAgent : undefined,
+        httpAgent: !isHttps ? httpAgent : undefined,
         headers: {
           'User-Agent': 'RoadResqAI/1.0 (emergency-routing-assistance)'
         }

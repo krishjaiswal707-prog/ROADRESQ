@@ -1,6 +1,10 @@
 const axios = require('axios');
+const https = require('https');
+const http = require('http');
 const { getCityConfig } = require('../config/cities');
 const osrmService = require('./osrmService');
+
+const httpsAgent = new https.Agent({ family: 4, keepAlive: true });
 
 /**
  * Curated Verified Real-World Hospitals Database for Chennai & Bengaluru
@@ -487,7 +491,11 @@ class HospitalDiscoveryService {
     try {
       const response = await axios.post(this.overpassEndpoint, `data=${encodeURIComponent(query)}`, {
         timeout: this.timeoutMs,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        httpsAgent,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) RoadResqAI/2.0'
+        }
       });
 
       const elements = response.data?.elements || [];
