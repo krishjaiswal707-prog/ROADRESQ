@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { 
   ShieldAlert, 
   MapPin, 
-  Radio,
   Flame,
   Truck,
   AlertTriangle,
@@ -99,16 +98,17 @@ export default function App() {
             name: selectedHospital.name,
             lat: selectedHospital.lat,
             lng: selectedHospital.lng
-          },
-          ambulanceId: 'AMB-RESQ-108'
+          }
         })
       });
 
       const data = await res.json();
-      if (data.trip) {
-        setRouteInfo(data.trip.selectedRoute);
-        setAlternativeRoutes(data.trip.alternativeRoutes || []);
+      if (data.routeOptimization) {
+        setRouteInfo(data.routeOptimization);
+        setAlternativeRoutes(data.routeOptimization.alternatives || []);
         setDispatchStatus('GREEN_CORRIDOR_ACTIVE');
+      } else {
+        setDispatchStatus('IDLE');
       }
     } catch (err) {
       console.error(err);
@@ -117,141 +117,141 @@ export default function App() {
   };
 
   const handleCancel = async () => {
-    await fetch('http://localhost:5000/api/emergency/cancel', { method: 'POST' });
-    setDispatchStatus('IDLE');
-    setRouteInfo(null);
-    setAlternativeRoutes([]);
+    try {
+      await fetch('http://localhost:5000/api/emergency/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cityId: selectedCityId })
+      });
+      setRouteInfo(null);
+      setAlternativeRoutes([]);
+      setDispatchStatus('IDLE');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const defaultCenter = currentCity?.center || { lat: 13.0827, lng: 80.2707 };
 
   return (
-    <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#0b1120', color: '#e2e8f0', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Header */}
-      <header style={{ padding: '12px 24px', backgroundColor: '#0f172a', borderBottom: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: 'var(--bg-app)' }}>
+      {/* Top Header Bar */}
+      <header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 20px',
+        height: '56px',
+        backgroundColor: '#0f1626',
+        borderBottom: '1px solid #1e2b48',
+        flexShrink: 0
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ backgroundColor: '#dc2626', color: '#fff', padding: '8px', borderRadius: '8px', display: 'flex', boxShadow: '0 0 12px rgba(220, 38, 38, 0.4)' }}>
-            <ShieldAlert size={24} />
+          <div style={{ padding: '6px', backgroundColor: '#dc2626', borderRadius: '6px', color: '#fff', display: 'flex' }}>
+            <ShieldAlert size={20} />
           </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, letterSpacing: '0.5px' }}>
-              ROAD RESQ AI <span style={{ color: '#38bdf8', fontSize: '0.85rem', fontWeight: 600 }}>| Integrated Traffic & Emergency Management</span>
-            </h1>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8' }}>
-              Multi-City Ambulance Corridor • Towing Assistance • Road Hazard Patrol • Hospital Discovery
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '0.5px' }}>
+                ROAD RESQ AI <span style={{ color: '#38bdf8' }}>2.0</span>
+              </h1>
+              <span style={{ fontSize: '0.65rem', padding: '1px 6px', backgroundColor: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', borderRadius: '4px', fontWeight: 700, border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                DO188 CAPSTONE
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.68rem', color: '#94a3b8' }}>
+              Integrated Emergency Traffic Clearing &amp; Green Corridor Operations
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {/* Multi-City Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1e293b', padding: '6px 12px', borderRadius: '6px', border: '1px solid #334155' }}>
-            <MapPin size={15} color="#38bdf8" />
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>City:</span>
-            <select 
-              value={selectedCityId} 
-              onChange={e => setSelectedCityId(e.target.value)}
-              style={{ background: 'transparent', color: '#f8fafc', border: 'none', fontWeight: 700, outline: 'none', cursor: 'pointer', fontSize: '0.85rem' }}
-            >
-              {cities.map(c => (
-                <option key={c.cityId} value={c.cityId} style={{ background: '#1e293b' }}>
-                  {c.cityName}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', padding: '6px 12px', borderRadius: '20px', backgroundColor: '#052e16', color: '#4ade80', border: '1px solid #166534' }}>
-            <Radio size={13} className="spin" /> Free-First OSM Live
-          </div>
+        {/* City Switcher Dropdown */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <MapPin size={14} color="#60a5fa" /> Urban Sector:
+          </label>
+          <select
+            value={selectedCityId}
+            onChange={e => setSelectedCityId(e.target.value)}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: '#151e34',
+              color: '#f8fafc',
+              border: '1px solid #25355a',
+              borderRadius: '6px',
+              fontWeight: 700,
+              fontSize: '0.78rem',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            {cities.map(c => (
+              <option key={c.cityId} value={c.cityId}>
+                {c.cityName.toUpperCase()} ({c.state})
+              </option>
+            ))}
+          </select>
         </div>
       </header>
 
       {/* Module Navigation Tabs */}
-      <nav style={{ backgroundColor: '#090d16', borderBottom: '1px solid #1e293b', padding: '6px 24px', display: 'flex', gap: '12px' }}>
-        <button
-          onClick={() => setActiveTab('EMERGENCY')}
-          style={{
-            padding: '6px 14px',
-            backgroundColor: activeTab === 'EMERGENCY' ? '#0284c7' : '#1e293b',
-            color: activeTab === 'EMERGENCY' ? '#ffffff' : '#94a3b8',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 700,
-            fontSize: '0.78rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <Flame size={14} /> Ambulance Green Corridor
-        </button>
-
-        <button
-          onClick={() => setActiveTab('CRANE')}
-          style={{
-            padding: '6px 14px',
-            backgroundColor: activeTab === 'CRANE' ? '#d97706' : '#1e293b',
-            color: activeTab === 'CRANE' ? '#ffffff' : '#94a3b8',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 700,
-            fontSize: '0.78rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <Truck size={14} /> Crane & Towing Service
-        </button>
-
-        <button
-          onClick={() => setActiveTab('HAZARDS')}
-          style={{
-            padding: '6px 14px',
-            backgroundColor: activeTab === 'HAZARDS' ? '#dc2626' : '#1e293b',
-            color: activeTab === 'HAZARDS' ? '#ffffff' : '#94a3b8',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 700,
-            fontSize: '0.78rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <AlertTriangle size={14} /> Road Hazards & Bridges
-        </button>
-
-        <button
-          onClick={() => setActiveTab('HOSPITALS')}
-          style={{
-            padding: '6px 14px',
-            backgroundColor: activeTab === 'HOSPITALS' ? '#0d9488' : '#1e293b',
-            color: activeTab === 'HOSPITALS' ? '#ffffff' : '#94a3b8',
-            border: 'none',
-            borderRadius: '6px',
-            fontWeight: 700,
-            fontSize: '0.78rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}
-        >
-          <HospitalIcon size={14} /> Hospital Directory
-        </button>
+      <nav style={{
+        display: 'flex',
+        gap: '6px',
+        padding: '8px 20px',
+        backgroundColor: '#080c16',
+        borderBottom: '1px solid #1e2b48',
+        flexShrink: 0
+      }}>
+        {[
+          { id: 'EMERGENCY', label: 'Smart Traffic & Green Corridor', icon: Flame, color: '#2563eb' },
+          { id: 'CRANE', label: 'Crane & Towing Service', icon: Truck, color: '#d97706' },
+          { id: 'HAZARDS', label: 'Road Hazards & Bridges', icon: AlertTriangle, color: '#dc2626' },
+          { id: 'HOSPITALS', label: 'Hospital Directory', icon: HospitalIcon, color: '#0d9488' }
+        ].map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                padding: '6px 14px',
+                backgroundColor: isActive ? tab.color : '#0f1626',
+                color: isActive ? '#ffffff' : '#94a3b8',
+                border: isActive ? 'none' : '1px solid #1e2b48',
+                borderRadius: '6px',
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Icon size={14} /> {tab.label}
+            </button>
+          );
+        })}
       </nav>
 
-      {/* Main Grid Workspace */}
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr 340px', flex: 1, overflow: 'hidden' }}>
-        {/* Left Interactive Control Panel based on selected tab */}
-        <div style={{ overflowY: 'auto', backgroundColor: '#0f172a', borderRight: '1px solid #1e293b', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Main Responsive Grid Layout */}
+      <div className="dashboard-layout">
+        {/* Left Column: Interactive Dispatch & Operational Control */}
+        <aside style={{
+          overflowY: 'auto',
+          backgroundColor: '#0f1626',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          minWidth: 0,
+          borderRight: '1px solid #1e2b48'
+        }}>
           {activeTab === 'EMERGENCY' && (
             <EmergencyControls
+              cityId={selectedCityId}
               hospitals={hospitals}
               selectedHospital={selectedHospital}
               onSelectHospital={setSelectedHospital}
@@ -280,19 +280,28 @@ export default function App() {
               cityId={selectedCityId}
             />
           )}
-        </div>
+        </aside>
 
-        {/* Center: Leaflet OpenStreetMap Viewport */}
-        <main style={{ position: 'relative', display: 'flex', flexDirection: 'column', backgroundColor: '#020617', height: '100%' }}>
-          <div style={{ padding: '8px 16px', backgroundColor: '#0f172a', borderBottom: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>
+        {/* Center Column: Leaflet Map & Operational Intelligence Dashboard */}
+        <main className="center-workspace">
+          <div style={{
+            padding: '8px 16px',
+            backgroundColor: '#0f1626',
+            borderBottom: '1px solid #1e2b48',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexShrink: 0
+          }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>
               Interactive Sector: <span style={{ color: '#f8fafc' }}>{selectedCityId.toUpperCase()} DISPATCH GRID</span>
             </span>
-            <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+            <span style={{ fontSize: '0.7rem', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
               Lat: {defaultCenter.lat.toFixed(4)}, Lng: {defaultCenter.lng.toFixed(4)}
             </span>
           </div>
 
+          {/* Leaflet Map with responsive height */}
           <TrafficMap
             cityId={selectedCityId}
             cityCenter={defaultCenter}
@@ -304,12 +313,14 @@ export default function App() {
             routeCoordinates={routeInfo?.pathCoordinates || []}
             alternativeRoutes={alternativeRoutes}
           />
-          <div style={{ padding: '0 16px 16px 16px', overflowY: 'auto' }}>
+
+          {/* Operational Intelligence (SLA Timeline, Predictions, Hospital Ranking, Container Ops) */}
+          <div className="intelligence-section">
             <AdvancedIntelligence cityId={selectedCityId} />
           </div>
         </main>
 
-        {/* Right: Live Traffic Telemetry & Preemption Monitor */}
+        {/* Right Column: Traffic Telemetry & Preemption Monitor */}
         <SignalMonitor signals={signals} segments={segments} />
       </div>
     </div>

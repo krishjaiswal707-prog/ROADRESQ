@@ -31,11 +31,11 @@ export function TrafficMap({
   alternativeRoutes = []
 }: TrafficMapProps) {
   return (
-    <div style={{ flex: 1, position: 'relative', height: '100%', width: '100%' }}>
+    <div className="map-viewport">
       <MapContainer
         center={[cityCenter.lat, cityCenter.lng]}
         zoom={zoom}
-        style={{ width: '100%', height: '100%', background: '#090d16' }}
+        style={{ width: '100%', height: '100%', background: '#080c16' }}
         scrollWheelZoom={true}
       >
         <MapController center={cityCenter} zoom={zoom} routeCoordinates={routeCoordinates} />
@@ -63,58 +63,72 @@ export function TrafficMap({
           ) : null
         ))}
 
-        {/* Recommended Emergency Corridor (Vibrant Green Line) */}
-        {routeCoordinates && routeCoordinates.length >= 2 && (
+        {/* Priority Emergency Green Corridor Polyline (Neon Green glow) */}
+        {routeCoordinates.length >= 2 && (
           <Polyline
             positions={routeCoordinates}
             pathOptions={{
-              color: isGreenCorridorActive ? '#22c55e' : '#38bdf8',
+              color: isGreenCorridorActive ? '#10b981' : '#3b82f6',
               weight: isGreenCorridorActive ? 6 : 5,
               opacity: 0.95
             }}
           />
         )}
 
-        {/* Traffic Signals */}
-        {signals.map((sig) => (
-          <TrafficSignalMarker key={sig.signalId} signal={sig} />
-        ))}
-
-        {/* Hospitals */}
-        {hospitals.map((hosp) => (
-          <HospitalMarker
-            key={hosp.id}
-            hospital={hosp}
-            isSelected={selectedHospital?.id === hosp.id}
+        {/* Live Traffic Signals with Real/Simulated Preemption States */}
+        {signals.map(signal => (
+          <TrafficSignalMarker
+            key={signal.signalId}
+            signal={signal}
           />
         ))}
 
-        {/* Active Emergency Ambulance */}
-        {ambulance && (
-          <AmbulanceMarker ambulance={ambulance} />
-        )}
+        {/* Discovered Hospitals & Medical Centers */}
+        {hospitals.map(hospital => (
+          <HospitalMarker
+            key={hospital.id}
+            hospital={hospital}
+            isSelected={selectedHospital?.id === hospital.id}
+          />
+        ))}
+
+        {/* Live Ambulance Beacon */}
+        {ambulance && <AmbulanceMarker ambulance={ambulance} />}
       </MapContainer>
 
-      {/* Map Attribution & Engine Badge */}
+      {/* Compact Tactical Map Legend */}
       <div style={{
         position: 'absolute',
         bottom: '12px',
         right: '12px',
-        padding: '6px 12px',
-        backgroundColor: 'rgba(15, 23, 42, 0.88)',
-        backdropFilter: 'blur(4px)',
-        border: '1px solid #334155',
-        borderRadius: '6px',
-        fontSize: '0.72rem',
-        color: '#94a3b8',
         zIndex: 1000,
+        backgroundColor: 'rgba(8, 12, 22, 0.9)',
+        border: '1px solid #1e2b48',
+        borderRadius: '6px',
+        padding: '8px 12px',
+        fontSize: '0.68rem',
+        color: '#94a3b8',
         display: 'flex',
-        alignItems: 'center',
-        gap: '8px'
+        flexDirection: 'column',
+        gap: '4px',
+        backdropFilter: 'blur(4px)',
+        pointerEvents: 'none'
       }}>
-        <span>Engine: <strong style={{ color: '#4ade80' }}>React-Leaflet + OpenStreetMap</strong></span>
-        <span>•</span>
-        <span>Routing: <strong style={{ color: '#38bdf8' }}>OSRM Road-Snapped</strong></span>
+        <div style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '2px', textTransform: 'uppercase', fontSize: '0.65rem' }}>
+          Tactical Map Legend
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '12px', height: '3px', backgroundColor: '#10b981', display: 'inline-block', borderRadius: '1px' }} />
+          <span>Priority Green Corridor</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '12px', height: '3px', backgroundColor: '#f59e0b', display: 'inline-block', borderRadius: '1px' }} />
+          <span>Alternative Direct Route</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block' }} />
+          <span>Preempted Intersection</span>
+        </div>
       </div>
     </div>
   );

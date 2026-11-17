@@ -6,7 +6,7 @@ interface AdvancedIntelligenceProps {
 }
 
 export const AdvancedIntelligence: React.FC<AdvancedIntelligenceProps> = ({ cityId }) => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'predictions' | 'hospitals' | 'risk' | 'containers'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'predictions' | 'hospitals' | 'containers'>('timeline');
   const [predictions, setPredictions] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [timeline, setTimeline] = useState<any>(null);
@@ -19,7 +19,6 @@ export const AdvancedIntelligence: React.FC<AdvancedIntelligenceProps> = ({ city
   });
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Fetch intelligence data
   useEffect(() => {
     fetchTimeline();
     fetchPredictions();
@@ -92,124 +91,216 @@ export const AdvancedIntelligence: React.FC<AdvancedIntelligenceProps> = ({ city
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-2xl text-slate-100 mt-6">
-      <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-800 mb-6 gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-600/20 text-blue-400 rounded-lg border border-blue-500/30">
-            <Activity className="w-5 h-5" />
+    <div style={{
+      backgroundColor: '#0f1626',
+      border: '1px solid #1e2b48',
+      borderRadius: '8px',
+      padding: '16px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '14px',
+      width: '100%',
+      minWidth: 0
+    }}>
+      {/* Header & Tabs */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: '12px',
+        borderBottom: '1px solid #1e2b48',
+        gap: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            padding: '6px 8px',
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '6px',
+            color: '#60a5fa'
+          }}>
+            <Activity size={18} />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white tracking-wide">ROAD RESQ AI 2.0 &bull; Advanced Intelligence</h2>
-            <p className="text-xs text-slate-400">Emergency SLA Tracking &bull; Traffic Forecast &bull; Podman Monitoring</p>
+            <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', letterSpacing: '0.3px' }}>
+              Operational Intelligence Center
+            </h2>
+            <p style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+              SLA Analytics &bull; Traffic Forecasting &bull; Multi-Container Telemetry
+            </p>
           </div>
         </div>
 
-        {/* Tab Controls */}
-        <div className="flex bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
-          <button
-            onClick={() => setActiveTab('timeline')}
-            className={`px-3 py-1.5 rounded-md transition ${activeTab === 'timeline' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
-          >
-            SLA Timeline
-          </button>
-          <button
-            onClick={() => setActiveTab('predictions')}
-            className={`px-3 py-1.5 rounded-md transition ${activeTab === 'predictions' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
-          >
-            Traffic Predictions
-          </button>
-          <button
-            onClick={() => setActiveTab('hospitals')}
-            className={`px-3 py-1.5 rounded-md transition ${activeTab === 'hospitals' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
-          >
-            Hospital Ranking
-          </button>
-          <button
-            onClick={() => setActiveTab('containers')}
-            className={`px-3 py-1.5 rounded-md transition ${activeTab === 'containers' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
-          >
-            Container Ops
-          </button>
+        {/* Tab Navigation */}
+        <div style={{
+          display: 'flex',
+          backgroundColor: '#080c16',
+          padding: '3px',
+          borderRadius: '6px',
+          border: '1px solid #1e2b48',
+          gap: '3px'
+        }}>
+          {[
+            { id: 'timeline', label: 'SLA Timeline' },
+            { id: 'predictions', label: 'Traffic Predictions' },
+            { id: 'hospitals', label: 'Hospital Ranking' },
+            { id: 'containers', label: 'Container Ops' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backgroundColor: activeTab === tab.id ? '#2563eb' : 'transparent',
+                color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* TAB 1: SLA TIMELINE */}
       {activeTab === 'timeline' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">Explainable Priority</span>
-              <div className="text-2xl font-bold text-red-400 mt-1">{priorityData.score}/100</div>
-              <span className="text-[10px] text-red-300 uppercase font-semibold">{priorityData.severityLevel} LEVEL</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', minWidth: 0 }}>
+          {/* Key SLA Metric Cards (Responsive Grid) */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '10px',
+            width: '100%'
+          }}>
+            <div style={{ backgroundColor: '#151e34', padding: '10px 12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Emergency Priority</span>
+              <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#f87171', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
+                {priorityData.score}<span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>/100</span>
+              </div>
+              <span style={{ fontSize: '0.65rem', color: '#fca5a5', fontWeight: 600 }}>{priorityData.severityLevel} TIER</span>
             </div>
-            <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">SLA Target</span>
-              <div className="text-2xl font-bold text-emerald-400 mt-1">10m 00s</div>
-              <span className="text-[10px] text-emerald-400 uppercase font-semibold">Standard Urban SLA</span>
+
+            <div style={{ backgroundColor: '#151e34', padding: '10px 12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Target Urban SLA</span>
+              <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#34d399', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
+                10m 00s
+              </div>
+              <span style={{ fontSize: '0.65rem', color: '#6ee7b7', fontWeight: 600 }}>METROPOLITAN STANDARD</span>
             </div>
-            <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">Verification to Assign</span>
-              <div className="text-2xl font-bold text-blue-400 mt-1">
+
+            <div style={{ backgroundColor: '#151e34', padding: '10px 12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Assign Duration</span>
+              <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#60a5fa', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
                 {timeline?.metrics?.verificationToAssignmentSec || 42}s
               </div>
-              <span className="text-[10px] text-blue-300 uppercase font-semibold">Automated Dispatch</span>
+              <span style={{ fontSize: '0.65rem', color: '#93c5fd', fontWeight: 600 }}>ALGORITHMIC TRIAGE</span>
             </div>
-            <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">Live SLA Status</span>
-              <div className="text-xl font-bold text-emerald-400 mt-1 flex items-center gap-1.5">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                {timeline?.slaStatus || 'ON_TARGET'}
+
+            <div style={{ backgroundColor: '#151e34', padding: '10px 12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Live SLA Status</span>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#34d399', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle size={16} color="#34d399" /> {timeline?.slaStatus || 'ON_TARGET'}
               </div>
-              <span className="text-[10px] text-slate-400">Response within SLA</span>
+              <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Zero Breaches Logged</span>
             </div>
           </div>
 
-          <div className="bg-slate-950/50 p-4 rounded-lg border border-slate-800">
-            <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center justify-between">
-              <span>Emergency Event Lifecycle (Real-time Audit Trail)</span>
-              <span className="text-xs text-slate-500">Incident ID: INCIDENT_LIVE_DEMO</span>
-            </h3>
-            
-            <div className="space-y-3">
+          {/* Event History Audit Trail */}
+          <div style={{
+            backgroundColor: '#080c16',
+            borderRadius: '6px',
+            border: '1px solid #1e2b48',
+            padding: '12px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Incident Event Timeline &bull; INCIDENT_LIVE_DEMO
+              </span>
+              <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Real-time Audit Log</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
               {(timeline?.events || [
-                { eventType: 'REPORT_CREATED', description: 'Emergency 108 citizen accident call received.', timestamp: new Date() },
-                { eventType: 'PRIORITY_ASSIGNED', description: 'Automated Priority Engine scored 82/100 (CRITICAL).', timestamp: new Date() },
-                { eventType: 'RESOURCE_ALLOCATED', description: 'Advanced Life Support (ALS) Ambulance matched.', timestamp: new Date() },
-                { eventType: 'CORRIDOR_ACTIVATED', description: 'Green Corridor activated. Traffic light preemption engaged.', timestamp: new Date() }
-              ]).map((ev: any, idx: number) => (
-                <div key={idx} className="flex items-start gap-3 p-2.5 rounded bg-slate-900 border border-slate-800/80 text-xs">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5"></span>
-                  <div className="flex-1">
-                    <div className="font-semibold text-slate-200">{ev.eventType}</div>
-                    <div className="text-slate-400 mt-0.5">{ev.description}</div>
+                { eventType: 'REPORT_CREATED', description: 'Emergency accident call registered in sector.', timestamp: new Date() },
+                { eventType: 'PRIORITY_ASSIGNED', description: 'Priority Engine classified incident at 82/100 (CRITICAL).', timestamp: new Date() },
+                { eventType: 'RESOURCE_ALLOCATED', description: 'Advanced Life Support (ALS) Ambulance allocated.', timestamp: new Date() },
+                { eventType: 'CORRIDOR_ACTIVATED', description: 'Green Corridor preemption override active.', timestamp: new Date() }
+              ]).map((ev: any, i: number) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '7px 10px',
+                  backgroundColor: '#0f1626',
+                  borderRadius: '4px',
+                  border: '1px solid #1e2b48',
+                  fontSize: '0.73rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3b82f6' }} />
+                    <span style={{ fontWeight: 700, color: '#f8fafc' }}>{ev.eventType}</span>
+                    <span style={{ color: '#94a3b8' }}>&mdash; {ev.description}</span>
                   </div>
-                  <span className="text-[11px] text-slate-500 font-mono">
+                  <span style={{ fontSize: '0.68rem', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
                     {new Date(ev.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
               ))}
             </div>
 
-            {/* Lifecycle trigger buttons */}
-            <div className="mt-4 pt-3 border-t border-slate-800 flex flex-wrap gap-2">
+            {/* Quick Actions */}
+            <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #1e2b48', display: 'flex', gap: '8px' }}>
               <button
                 disabled={loading}
                 onClick={() => handleSimulateIncidentStep('DISPATCH_INITIATED')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded border border-slate-700"
+                style={{
+                  padding: '5px 10px',
+                  backgroundColor: '#1e293b',
+                  color: '#cbd5e1',
+                  border: '1px solid #334155',
+                  borderRadius: '4px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
               >
                 + Dispatch Initiated
               </button>
               <button
                 disabled={loading}
                 onClick={() => handleSimulateIncidentStep('RESOURCE_ARRIVED')}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded border border-slate-700"
+                style={{
+                  padding: '5px 10px',
+                  backgroundColor: '#1e293b',
+                  color: '#cbd5e1',
+                  border: '1px solid #334155',
+                  borderRadius: '4px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
               >
-                + Resource Arrived
+                + On-Scene Arrival
               </button>
               <button
                 disabled={loading}
                 onClick={() => handleSimulateIncidentStep('INCIDENT_RESOLVED')}
-                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-xs rounded text-white"
+                style={{
+                  padding: '5px 10px',
+                  backgroundColor: '#065f46',
+                  color: '#ecfdf5',
+                  border: '1px solid #059669',
+                  borderRadius: '4px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
               >
                 ✓ Mark Resolved
               </button>
@@ -220,39 +311,64 @@ export const AdvancedIntelligence: React.FC<AdvancedIntelligenceProps> = ({ city
 
       {/* TAB 2: TRAFFIC PREDICTIONS */}
       {activeTab === 'predictions' && (
-        <div className="space-y-4">
-          <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Multi-Horizon Congestion Forecast</h3>
-              <p className="text-xs text-slate-400">Baseline Exponential Smoothing Model factoring historical trends & active hazards</p>
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+              Historical Exponential Smoothing Model &bull; Evaluated over current road network
+            </span>
             <button
               onClick={fetchPredictions}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded text-slate-300"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 10px',
+                backgroundColor: '#151e34',
+                color: '#94a3b8',
+                border: '1px solid #25355a',
+                borderRadius: '4px',
+                fontSize: '0.72rem',
+                cursor: 'pointer'
+              }}
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Refresh
+              <RefreshCw size={12} /> Recalculate
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
             {predictions.map((p, idx) => (
-              <div key={idx} className="bg-slate-950 p-4 rounded-lg border border-slate-800">
-                <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mb-2">
-                  <span>+{p.horizonMinutes} MIN FORECAST</span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-blue-900/50 text-blue-300">
+              <div key={idx} style={{
+                backgroundColor: '#151e34',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #25355a'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f8fafc' }}>+{p.horizonMinutes} MIN FORECAST</span>
+                  <span style={{
+                    fontSize: '0.65rem',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    color: '#60a5fa',
+                    fontWeight: 700
+                  }}>
                     {Math.round(p.confidence * 100)}% CONFIDENCE
                   </span>
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  {p.predictedSpeedKmh} <span className="text-sm font-normal text-slate-400">km/h</span>
+                <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#ffffff', fontFamily: 'var(--font-mono)' }}>
+                  {p.predictedSpeedKmh} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8' }}>km/h</span>
                 </div>
-                <div className={`text-xs font-semibold mb-3 ${
-                  p.predictedCongestion === 'LOW' ? 'text-emerald-400' :
-                  p.predictedCongestion === 'MODERATE' ? 'text-amber-400' : 'text-red-400'
-                }`}>
+                <div style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  marginTop: '2px',
+                  marginBottom: '8px',
+                  color: p.predictedCongestion === 'LOW' ? '#34d399' : p.predictedCongestion === 'MODERATE' ? '#fbbf24' : '#f87171'
+                }}>
                   {p.predictedCongestion} CONGESTION
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed border-t border-slate-900 pt-2">
+                <p style={{ fontSize: '0.7rem', color: '#94a3b8', lineHeight: 1.4, borderTop: '1px solid #25355a', paddingTop: '6px' }}>
                   {p.explanation}
                 </p>
               </div>
@@ -261,43 +377,64 @@ export const AdvancedIntelligence: React.FC<AdvancedIntelligenceProps> = ({ city
         </div>
       )}
 
-      {/* TAB 3: HOSPITAL RECOMMENDATION */}
+      {/* TAB 3: HOSPITAL RANKING */}
       {activeTab === 'hospitals' && (
-        <div className="space-y-4">
-          <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Smart Hospital Recommendation Engine</h3>
-              <p className="text-xs text-slate-400">Multi-criteria scoring: Distance, Trauma capability, ICU beds & Verified OSM Data</p>
-            </div>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+            Multi-Criteria Algorithmic Ranking: Distance, Trauma Capability & Real OpenStreetMap Records
+          </span>
 
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {hospitals.map((h, idx) => (
-              <div key={idx} className="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-emerald-600/20 text-emerald-400 rounded-lg mt-0.5">
-                    <Hospital className="w-5 h-5" />
+              <div key={idx} style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                backgroundColor: '#151e34',
+                borderRadius: '6px',
+                border: '1px solid #25355a',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    padding: '8px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    color: '#34d399',
+                    borderRadius: '6px'
+                  }}>
+                    <Hospital size={18} />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-white">{h.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-900/50 text-emerald-300 border border-emerald-800/50">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#ffffff' }}>{h.name}</span>
+                      <span style={{
+                        fontSize: '0.65rem',
+                        padding: '1px 6px',
+                        borderRadius: '3px',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        color: '#34d399',
+                        fontWeight: 700
+                      }}>
                         {h.verificationStatus}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">{h.recommendationReason}</p>
-                    <div className="flex gap-4 mt-2 text-[11px] text-slate-500">
-                      <span>Distance: <b className="text-slate-300">{h.distanceKm} km</b></span>
-                      <span>Transit: <b className="text-slate-300">~{h.estimatedTransitMinutes} mins</b></span>
-                      <span>ICU Beds: <b className="text-slate-300">{h.capabilities.icuBedsAvailable}</b></span>
-                      <span>Trauma: <b className="text-slate-300">{h.capabilities.traumaTier}</b></span>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '3px', fontSize: '0.7rem', color: '#94a3b8' }}>
+                      <span>Distance: <b style={{ color: '#f1f5f9' }}>{h.distanceKm} km</b></span>
+                      <span>Transit: <b style={{ color: '#f1f5f9' }}>~{h.estimatedTransitMinutes} mins</b></span>
+                      <span>ICU Beds: <b style={{ color: '#34d399' }}>{h.capabilities.icuBedsAvailable} available</b></span>
+                      <span>Trauma: <b style={{ color: '#38bdf8' }}>{h.capabilities.traumaTier}</b></span>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-emerald-400">{h.suitabilityScore}%</div>
-                  <span className="text-[10px] text-slate-500 uppercase font-semibold">Match Score</span>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.35rem', fontWeight: 700, color: '#34d399', fontFamily: 'var(--font-mono)' }}>
+                    {h.suitabilityScore}%
+                  </div>
+                  <span style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>
+                    Suitability Match
+                  </span>
                 </div>
               </div>
             ))}
@@ -307,66 +444,67 @@ export const AdvancedIntelligence: React.FC<AdvancedIntelligenceProps> = ({ city
 
       {/* TAB 4: CONTAINER OPS */}
       {activeTab === 'containers' && (
-        <div className="space-y-4">
-          <div className="bg-slate-950/70 p-4 rounded-lg border border-slate-800 flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Red Hat DO188 Container Operations Center</h3>
-              <p className="text-xs text-slate-400">Live Podman / Docker Engine state &bull; Volume persistence &bull; Worker queues</p>
-            </div>
-            <button
-              onClick={fetchContainerOverview}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded text-slate-300"
-            >
-              <RefreshCw className="w-3.5 h-3.5" /> Refresh
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400 font-semibold mb-1 flex items-center gap-1.5">
-                <Server className="w-4 h-4 text-blue-400" /> Container Runtime
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+            <div style={{ backgroundColor: '#151e34', padding: '12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>
+                <Server size={14} color="#60a5fa" /> Runtime Engine
               </div>
-              <div className="text-xl font-bold text-white mt-2">
-                {containerStats?.engine || 'DOCKER / PODMAN OCI'}
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', marginTop: '4px' }}>
+                {containerStats?.engine || 'PODMAN / DOCKER OCI'}
               </div>
-              <div className="text-xs text-emerald-400 mt-1 font-medium">Node.js 20 Minimal Runtime</div>
+              <span style={{ fontSize: '0.65rem', color: '#34d399' }}>Node 20 Minimal Container</span>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400 font-semibold mb-1 flex items-center gap-1.5">
-                <Cpu className="w-4 h-4 text-purple-400" /> Memory Footprint
+            <div style={{ backgroundColor: '#151e34', padding: '12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>
+                <Cpu size={14} color="#c084fc" /> Memory Footprint
               </div>
-              <div className="text-xl font-bold text-white mt-2">
-                {containerStats?.memoryUsage?.rssMb || '48.2'} MB
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
+                {containerStats?.memoryUsage?.rssMb || 112.3} MB
               </div>
-              <div className="text-xs text-slate-400 mt-1">Uptime: {containerStats?.uptimeSeconds || 120}s</div>
+              <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Uptime: {containerStats?.uptimeSeconds || 45}s</span>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
-              <div className="text-xs text-slate-400 font-semibold mb-1 flex items-center gap-1.5">
-                <HardDrive className="w-4 h-4 text-emerald-400" /> Volume Persistence
+            <div style={{ backgroundColor: '#151e34', padding: '12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>
+                <HardDrive size={14} color="#34d399" /> Storage Volume
               </div>
-              <div className="text-xl font-bold text-emerald-400 mt-2">
-                ACTIVE
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#34d399', marginTop: '4px' }}>
+                PERSISTENT
               </div>
-              <div className="text-xs text-slate-400 mt-1">roadresq-mongo-data (SELinux :Z)</div>
+              <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>roadresq-mongo-data</span>
             </div>
           </div>
 
-          <div className="bg-slate-950 p-4 rounded-lg border border-slate-800">
-            <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3">Active Containers</h4>
-            <div className="space-y-2 text-xs">
-              {(containerStats?.containers || [
-                { name: 'roadresq-app', image: 'roadresq-backend:v1', status: 'Up (healthy)', ports: '5000, 5173' },
-                { name: 'roadresq-db', image: 'mongo:7.0', status: 'Up', ports: '27017' }
-              ]).map((c: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-2.5 rounded bg-slate-900 border border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    <span className="font-mono text-slate-200 font-semibold">{c.name}</span>
-                    <span className="text-slate-500">({c.image})</span>
+          <div style={{ backgroundColor: '#080c16', padding: '10px', borderRadius: '6px', border: '1px solid #1e2b48' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#e2e8f0', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+              Active Services in Compose Stack
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {[
+                { name: 'roadresq-app', role: 'API, WebSockets & Dashboard', port: '5000, 5173', status: 'Healthy' },
+                { name: 'roadresq-mongodb', role: 'MongoDB 7.0 Database', port: '27017', status: 'Healthy' },
+                { name: 'roadresq-redis', role: 'Redis 7 Background Broker', port: '6379', status: 'Healthy' }
+              ].map((svc, idx) => (
+                <div key={idx} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '6px 10px',
+                  backgroundColor: '#0f1626',
+                  borderRadius: '4px',
+                  fontSize: '0.72rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                    <strong style={{ color: '#f8fafc', fontFamily: 'var(--font-mono)' }}>{svc.name}</strong>
+                    <span style={{ color: '#94a3b8' }}>&bull; {svc.role}</span>
                   </div>
-                  <span className="font-mono text-slate-400">{c.status}</span>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ color: '#64748b', fontFamily: 'var(--font-mono)' }}>:{svc.port}</span>
+                    <span style={{ color: '#34d399', fontWeight: 600 }}>{svc.status}</span>
+                  </div>
                 </div>
               ))}
             </div>
