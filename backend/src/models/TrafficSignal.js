@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const TrafficSignalSchema = new mongoose.Schema({
   signalId: { type: String, required: true, unique: true },
+  cityId: { type: String, default: 'chennai' },
   name: { type: String, required: true },
   location: {
     lat: { type: Number, required: true },

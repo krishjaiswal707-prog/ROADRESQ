@@ -2,6 +2,7 @@ const TrafficSignal = require('../models/TrafficSignal');
 const TrafficData = require('../models/TrafficData');
 const { classifyCongestion } = require('../algorithms/trafficPredictor');
 const { BASE_EDGES, NETWORK_NODES, haversineDistanceKm } = require('../algorithms/routeOptimizer');
+const { SUPPORTED_CITIES } = require('../config/cities');
 
 class LiveSimulationEngine {
   constructor(io, routeOptimizer) {
@@ -13,13 +14,15 @@ class LiveSimulationEngine {
     // Active ambulance state
     this.ambulance = {
       id: 'AMB-RESQ-108',
+      cityId: 'chennai',
       isActive: false,
       tripId: null,
-      currentLocation: { lat: 11.0168, lng: 76.9558 },
-      destination: { lat: 11.0055, lng: 76.9840 },
+      currentLocation: { lat: 13.0827, lng: 80.2707 },
+      destination: { lat: 13.0805, lng: 80.2778 },
       routeIndex: 0,
       path: [],
-      greenCorridorEnabled: false
+      greenCorridorEnabled: false,
+      speedKmph: 0
     };
 
     // Simulated background vehicles
@@ -29,28 +32,31 @@ class LiveSimulationEngine {
 
   initVehicles() {
     this.vehicles = [
-      { id: 'V1', lat: 11.0168, lng: 76.9558, targetLat: 11.0145, targetLng: 76.9610, speed: 0.0002 },
-      { id: 'V2', lat: 11.0145, lng: 76.9610, targetLat: 11.0110, targetLng: 76.9680, speed: 0.00018 },
-      { id: 'V3', lat: 11.0110, lng: 76.9680, targetLat: 11.0085, targetLng: 76.9805, speed: 0.00022 },
-      { id: 'V4', lat: 11.0210, lng: 76.9625, targetLat: 11.0255, targetLng: 76.9710, speed: 0.00025 }
+      { id: 'V1', lat: 13.0827, lng: 80.2707, targetLat: 13.0805, targetLng: 80.2778, speed: 0.0002 },
+      { id: 'V2', lat: 13.0601, lng: 80.2505, targetLat: 13.0519, targetLng: 80.2514, speed: 0.00018 },
+      { id: 'V3', lat: 13.0405, lng: 80.2337, targetLat: 13.0076, targetLng: 80.2038, speed: 0.00022 },
+      { id: 'V4', lat: 12.9716, lng: 77.5946, targetLat: 12.9634, targetLng: 77.5755, speed: 0.00025 }
     ];
   }
 
   async seedSignals() {
-    const defaultSignals = [
-      { signalId: 'SIG-GANDHI', name: 'Gandhipuram Junction Signal', location: { lat: 11.0168, lng: 76.9558 } },
-      { signalId: 'SIG-CROSSCUT', name: 'Cross Cut Road Signal', location: { lat: 11.0145, lng: 76.9610 } },
-      { signalId: 'SIG-AVINASHI', name: 'Avinashi Flyover Intersection', location: { lat: 11.0110, lng: 76.9680 } },
-      { signalId: 'SIG-LAKSHMI', name: 'Lakshmi Mills Junction Signal', location: { lat: 11.0085, lng: 76.9805 } },
-      { signalId: 'SIG-100FT', name: '100 Feet Road Signal', location: { lat: 11.0210, lng: 76.9625 } }
-    ];
-
-    for (const sig of defaultSignals) {
-      await TrafficSignal.findOneAndUpdate(
-        { signalId: sig.signalId },
-        { ...sig, state: 'RED' },
-        { upsert: true, new: true }
-      );
+    for (const [cityKey, cityData] of Object.entries(SUPPORTED_CITIES)) {
+      if (cityData.keySignals && Array.isArray(cityData.keySignals)) {
+        for (const sig of cityData.keySignals) {
+          await TrafficSignal.findOneAndUpdate(
+            { signalId: sig.signalId },
+            {
+              signalId: sig.signalId,
+              cityId: cityKey,
+              name: sig.name,
+              location: sig.location,
+              state: 'RED',
+              isGreenCorridorOverridden: false
+            },
+            { upsert: true, new: true }
+          );
+        }
+      }
     }
   }
 
@@ -180,14 +186,14 @@ class LiveSimulationEngine {
               sig.location.lat,
               sig.location.lng
             );
-            // Within 650 meters, pre-empt signal to GREEN
-            if (distKm <= 0.65) {
+            // Within 1.0 km, pre-empt signal to GREEN
+            if (distKm <= 1.0) {
               if (sig.state !== 'GREEN' || !sig.isGreenCorridorOverridden) {
                 sig.state = 'GREEN';
                 sig.isGreenCorridorOverridden = true;
                 await sig.save();
               }
-            } else if (distKm > 1.2 && sig.isGreenCorridorOverridden) {
+            } else if (distKm > 1.8 && sig.isGreenCorridorOverridden) {
               // Once far past, restore normal cycle
               sig.isGreenCorridorOverridden = false;
               await sig.save();
@@ -209,21 +215,25 @@ class LiveSimulationEngine {
   }
 
   // API Trigger to dispatch ambulance & engage Green Corridor
-  async dispatchAmbulance(tripData) {
+  async dispatchAmbulance(tripData, cityId = 'chennai') {
     this.ambulance.isActive = true;
+    this.ambulance.cityId = cityId;
     this.ambulance.tripId = tripData.tripId;
     this.ambulance.currentLocation = { lat: tripData.origin.lat, lng: tripData.origin.lng };
     this.ambulance.destination = { lat: tripData.destination.lat, lng: tripData.destination.lng };
     this.ambulance.path = tripData.selectedRoute.pathCoordinates;
     this.ambulance.routeIndex = 0;
     this.ambulance.greenCorridorEnabled = true;
+    this.ambulance.speedKmph = 68;
 
     // Immediately pre-empt signals on this corridor
-    for (const sigId of tripData.controlledSignals) {
-      await TrafficSignal.findOneAndUpdate(
-        { signalId: sigId },
-        { state: 'GREEN', isGreenCorridorOverridden: true, lastStateChange: new Date() }
-      );
+    if (tripData.controlledSignals && tripData.controlledSignals.length > 0) {
+      for (const sigId of tripData.controlledSignals) {
+        await TrafficSignal.findOneAndUpdate(
+          { signalId: sigId },
+          { state: 'GREEN', isGreenCorridorOverridden: true, lastStateChange: new Date() }
+        );
+      }
     }
 
     const updatedSignals = await TrafficSignal.find();
