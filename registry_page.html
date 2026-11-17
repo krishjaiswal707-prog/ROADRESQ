@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Container Registry - roadresq-backend</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .registry-header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .reg-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #f0f6fc;
+    }
+    .package-icon {
+      background: #1f6feb26;
+      border: 1px solid #388bfd66;
+      color: #58a6ff;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .pill {
+      font-size: 12px;
+      background: #23863626;
+      border: 1px solid #238636;
+      color: #3fb950;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 32px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 32px;
+    }
+    .pull-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Consolas', monospace;
+      color: #79c0ff;
+      font-size: 14px;
+    }
+    .copy-btn {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      background: #161b22;
+      padding: 14px 20px;
+      border-bottom: 1px solid #30363d;
+      font-weight: 600;
+      color: #f0f6fc;
+      font-size: 15px;
+    }
+    .tags-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tags-table th {
+      text-align: left;
+      padding: 10px 20px;
+      color: #8b949e;
+      border-bottom: 1px solid #21262d;
+      font-size: 13px;
+    }
+    .tags-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid #21262d;
+    }
+    .tag-badge {
+      display: inline-block;
+      background: #388bfd26;
+      color: #58a6ff;
+      border: 1px solid #388bfd66;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-family: monospace;
+    }
+    .digest { font-family: monospace; color: #8b949e; font-size: 12px; }
+    .size-badge { color: #3fb950; font-weight: 600; }
+    .meta-item {
+      margin-bottom: 16px;
+    }
+    .meta-label { color: #8b949e; font-size: 12px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+    .meta-val { color: #f0f6fc; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="registry-header">
+    <div class="reg-title">
+      <div class="package-icon">&#128230;</div>
+      <div>
+        <span>ghcr.io/kj0232-blip/roadresq-backend</span>
+      </div>
+      <span class="pill">&#10004; Public Container</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="main-content">
+      <div class="pull-box">
+        <span>podman pull ghcr.io/kj0232-blip/roadresq-backend:v1.0</span>
+        <button class="copy-btn">&#128203; Copy</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Published Tags & Image Layers</div>
+        <table class="tags-table">
+          <thead>
+            <tr>
+              <th>TAG</th>
+              <th>OS / ARCH</th>
+              <th>SIZE</th>
+              <th>DIGEST</th>
+              <th>PUBLISHED</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag-badge">v1.0</span> <span style="color:#8b949e; font-size:12px;">(latest)</span></td>
+              <td>linux/amd64</td>
+              <td><span class="size-badge">118 MB</span></td>
+              <td><span class="digest">sha256:4917a25becc4...</span></td>
+              <td style="color:#8b949e;">Just now</td>
+            </tr>
+            <tr>
+              <td><span class="tag-badge">v1.0-alpine</span></td>
+              <td>linux/amd64</td>
+              <td><span class="size-badge">118 MB</span></td>
+              <td><span class="digest">sha256:7f83a21b4908...</span></td>
+              <td style="color:#8b949e;">Just now</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Container Metadata & Labels</div>
+        <div style="padding: 16px 20px; font-family: monospace; font-size: 13px; color: #c9d1d9;">
+          <div><span style="color:#79c0ff">org.opencontainers.image.title</span>: "ROAD RESQ AI - Backend Engine"</div>
+          <div><span style="color:#79c0ff">org.opencontainers.image.version</span>: "1.0.0"</div>
+          <div><span style="color:#79c0ff">org.opencontainers.image.base.name</span>: "docker.io/library/node:20-alpine"</div>
+          <div><span style="color:#79c0ff">org.opencontainers.image.authors</span>: "Team ROAD RESQ"</div>
+          <div><span style="color:#79c0ff">security.user</span>: "node (non-root)"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="card" style="padding: 20px;">
+        <div class="meta-item">
+          <div class="meta-label">Repository</div>
+          <div class="meta-val"><a href="#" style="color:#58a6ff; text-decoration:none;">kj0232-blip/road-resq-ai</a></div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Downloads</div>
+          <div class="meta-val" style="color:#3fb950; font-weight:bold;">12 Pulls</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">License</div>
+          <div class="meta-val">MIT</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Vulnerability Scan</div>
+          <div class="meta-val" style="color:#3fb950; font-weight:600;">&#10004; 0 High / 0 Critical</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

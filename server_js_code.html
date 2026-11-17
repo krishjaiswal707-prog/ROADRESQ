@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>server.js - ROAD RESQ AI Backend</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Consolas', 'Courier New', 'Fira Code', monospace;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .window {
+      width: 1020px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    .title-bar {
+      background: #21262d;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #30363d;
+    }
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: 18px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+    .filename {
+      color: #8b949e;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    pre {
+      padding: 24px;
+      font-size: 13px;
+      line-height: 1.55;
+      overflow-x: auto;
+    }
+    .keyword { color: #ff7b72; font-weight: bold; }
+    .fn { color: #d2a8ff; }
+    .string { color: #a5d6ff; }
+    .comment { color: #8b949e; font-style: italic; }
+    .variable { color: #79c0ff; }
+    .num { color: #79c0ff; }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">
+      <div class="buttons">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <div class="filename">backend/src/server.js &mdash; Express &amp; Socket.IO Gateway</div>
+    </div>
+    <pre><code><span class="fn">require</span>(<span class="string">'dotenv'</span>).<span class="fn">config</span>();
+<span class="keyword">const</span> <span class="variable">express</span> = <span class="fn">require</span>(<span class="string">'express'</span>);
+<span class="keyword">const</span> <span class="variable">http</span> = <span class="fn">require</span>(<span class="string">'http'</span>);
+<span class="keyword">const</span> { <span class="variable">Server</span> } = <span class="fn">require</span>(<span class="string">'socket.io'</span>);
+<span class="keyword">const</span> <span class="variable">cors</span> = <span class="fn">require</span>(<span class="string">'cors'</span>);
+
+<span class="keyword">const</span> <span class="variable">connectDB</span> = <span class="fn">require</span>(<span class="string">'./config/db'</span>);
+<span class="keyword">const</span> { <span class="variable">RouteOptimizer</span> } = <span class="fn">require</span>(<span class="string">'./algorithms/routeOptimizer'</span>);
+<span class="keyword">const</span> <span class="variable">LiveSimulationEngine</span> = <span class="fn">require</span>(<span class="string">'./simulation/trafficSimulator'</span>);
+
+<span class="keyword">const</span> <span class="variable">app</span> = <span class="fn">express</span>();
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="fn">cors</span>({ origin: <span class="string">'*'</span> }));
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="variable">express</span>.<span class="fn">json</span>());
+
+<span class="keyword">const</span> <span class="variable">server</span> = <span class="variable">http</span>.<span class="fn">createServer</span>(<span class="variable">app</span>);
+<span class="keyword">const</span> <span class="variable">io</span> = <span class="keyword">new</span> <span class="variable">Server</span>(<span class="variable">server</span>, { cors: { origin: <span class="string">'*'</span>, methods: [<span class="string">'GET'</span>, <span class="string">'POST'</span>] } });
+
+<span class="comment">// Initialize Routing Engine &amp; Live Traffic Simulation</span>
+<span class="keyword">const</span> <span class="variable">routeOptimizer</span> = <span class="keyword">new</span> <span class="variable">RouteOptimizer</span>();
+<span class="keyword">const</span> <span class="variable">simulationEngine</span> = <span class="keyword">new</span> <span class="variable">LiveSimulationEngine</span>(<span class="variable">io</span>, <span class="variable">routeOptimizer</span>);
+
+<span class="comment">// Mount All Emergency Operations Modules</span>
+<span class="keyword">const</span> <span class="variable">trafficRoutes</span> = <span class="fn">require</span>(<span class="string">'./routes/trafficRoutes'</span>);
+<span class="keyword">const</span> <span class="variable">emergencyRoutes</span> = <span class="fn">require</span>(<span class="string">'./routes/emergencyRoutes'</span>)(<span class="variable">routeOptimizer</span>, <span class="variable">simulationEngine</span>);
+<span class="keyword">const</span> <span class="variable">cityRoutes</span> = <span class="fn">require</span>(<span class="string">'./routes/cityRoutes'</span>);
+<span class="keyword">const</span> <span class="variable">routingRoutes</span> = <span class="fn">require</span>(<span class="string">'./routes/routingRoutes'</span>);
+<span class="keyword">const</span> <span class="variable">hospitalRoutes</span> = <span class="fn">require</span>(<span class="string">'./modules/hospitals/hospital.routes'</span>);
+<span class="keyword">const</span> <span class="variable">craneRoutes</span> = <span class="fn">require</span>(<span class="string">'./routes/craneRoutes'</span>);
+<span class="keyword">const</span> <span class="variable">hazardRoutes</span> = <span class="fn">require</span>(<span class="string">'./routes/hazardRoutes'</span>);
+
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/traffic'</span>, <span class="variable">trafficRoutes</span>);
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/emergency'</span>, <span class="variable">emergencyRoutes</span>);
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/cities'</span>, <span class="variable">cityRoutes</span>);
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/routes'</span>, <span class="variable">routingRoutes</span>);
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/hospitals'</span>, <span class="variable">hospitalRoutes</span>);
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/crane'</span>, <span class="variable">craneRoutes</span>);
+<span class="variable">app</span>.<span class="fn">use</span>(<span class="string">'/api/hazards'</span>, <span class="variable">hazardRoutes</span>);
+
+<span class="comment">// Health Probe for Container Orchestration</span>
+<span class="variable">app</span>.<span class="fn">get</span>(<span class="string">'/api/health'</span>, (<span class="variable">req</span>, <span class="variable">res</span>) =&gt; {
+  <span class="variable">res</span>.<span class="fn">json</span>({
+    status: <span class="string">'ONLINE'</span>,
+    service: <span class="string">'ROAD RESQ AI - Smart Traffic &amp; Emergency Optimization'</span>,
+    simulationRunning: <span class="variable">simulationEngine</span>.<span class="variable">isRunning</span>,
+    timestamp: <span class="keyword">new</span> <span class="variable">Date</span>()
+  });
+});
+
+<span class="keyword">const</span> <span class="variable">PORT</span> = <span class="variable">process</span>.<span class="variable">env</span>.<span class="variable">PORT</span> || <span class="num">5000</span>;
+
+(<span class="keyword">async</span> () =&gt; {
+  <span class="keyword">await</span> <span class="fn">connectDB</span>();
+  <span class="keyword">await</span> <span class="variable">simulationEngine</span>.<span class="fn">seedSignals</span>();
+  <span class="variable">simulationEngine</span>.<span class="fn">start</span>();
+
+  <span class="variable">server</span>.<span class="fn">listen</span>(<span class="variable">PORT</span>, () =&gt; {
+    <span class="variable">console</span>.<span class="fn">log</span>(<span class="string">`🚀 ROAD RESQ AI Backend running at http://localhost:${PORT}`</span>);
+  });
+})();</code></pre>
+  </div>
+</body>
+</html>
+

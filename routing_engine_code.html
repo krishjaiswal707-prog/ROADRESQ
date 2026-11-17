@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ROAD RESQ AI - Routing Engine Code</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0f19;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px;
+      font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+    }
+    .window {
+      width: 1180px;
+      background: #141925;
+      border-radius: 12px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .titlebar {
+      height: 48px;
+      background: #0f131e;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      user-select: none;
+    }
+    .traffic-dots {
+      display: flex;
+      gap: 8px;
+      margin-right: 20px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      flex-grow: 1;
+    }
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      background: #141925;
+      color: #93c5fd;
+      border-radius: 6px 6px 0 0;
+      font-size: 13px;
+      font-weight: 500;
+      border-top: 2px solid #3b82f6;
+    }
+    .tab-inactive {
+      background: transparent;
+      color: #64748b;
+      border-top: 2px solid transparent;
+    }
+    .file-path {
+      font-size: 12px;
+      color: #64748b;
+      margin-right: 12px;
+    }
+    .code-container {
+      display: flex;
+      padding: 24px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+    .line-numbers {
+      padding: 0 20px 0 24px;
+      color: #3b4252;
+      text-align: right;
+      user-select: none;
+      font-family: inherit;
+    }
+    .code-body {
+      padding-right: 28px;
+      flex-grow: 1;
+      color: #e2e8f0;
+      font-family: inherit;
+      white-space: pre;
+    }
+
+    /* Syntax Highlighting */
+    .kwd { color: #f43f5e; font-weight: 600; }   /* const, return, async, class */
+    .fn { color: #38bdf8; }                      /* function call */
+    .prop { color: #60a5fa; }                    /* properties */
+    .str { color: #34d399; }                     /* strings */
+    .cmt { color: #64748b; font-style: italic; } /* comments */
+    .num { color: #fbbf24; }                     /* numbers */
+    .cls { color: #e879f9; }                     /* class names */
+    .op { color: #94a3b8; }                      /* operators */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .footer {
+      background: #0f131e;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #64748b;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic-dots">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+      </div>
+      <div class="tabs">
+        <div class="tab">
+          <span>⚡ routeOptimization.service.js</span>
+          <span class="badge">Engine</span>
+        </div>
+        <div class="tab tab-inactive">dijkstraEngine.js</div>
+        <div class="tab tab-inactive">astarEngine.js</div>
+      </div>
+      <div class="file-path">ROAD RESQ AI / backend / src / modules / routing / services</div>
+    </div>
+
+    <div class="code-container">
+      <div class="line-numbers">
+01
+02
+03
+04
+05
+06
+07
+08
+09
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+      </div>
+      <div class="code-body"><span class="kwd">const</span> roadGraphEngine = <span class="fn">require</span>(<span class="str">'../roadGraphEngine'</span>);
+<span class="kwd">const</span> { <span class="fn">dijkstraShortestPath</span> } = <span class="fn">require</span>(<span class="str">'../algorithms/dijkstraEngine'</span>);
+<span class="kwd">const</span> { <span class="fn">astarShortestPath</span> } = <span class="fn">require</span>(<span class="str">'../algorithms/astarEngine'</span>);
+<span class="kwd">const</span> osrmService = <span class="fn">require</span>(<span class="str">'../../../services/osrmService'</span>);
+
+<span class="kwd">class</span> <span class="cls">RouteOptimizationService</span> {
+  <span class="cmt">/**
+   * Computes multi-objective emergency routing:
+   * 1. Road-snapped OSRM geometry baseline (free-first open routing stack)
+   * 2. Dijkstra traffic-weighted shortest path with live congestion penalties
+   * 3. Automated Green Corridor dynamic preemption speed multiplier (~42% saving)
+   */</span>
+  <span class="kwd">async</span> <span class="fn">computeAlternativeRoutes</span>(cityId, origin, destination, isEmergency = <span class="kwd">true</span>) {
+    <span class="kwd">const</span> graph = roadGraphEngine.<span class="fn">getCityGraph</span>(cityId);
+    <span class="kwd">const</span> startNode = roadGraphEngine.<span class="fn">findClosestNode</span>(cityId, origin.lat, origin.lng);
+    <span class="kwd">const</span> targetNode = roadGraphEngine.<span class="fn">findClosestNode</span>(cityId, destination.lat, destination.lng);
+
+    <span class="cmt">// Step 1: OSRM open routing engine call for high-resolution road geometry</span>
+    <span class="kwd">const</span> osrmResult = <span class="kwd">await</span> osrmService.<span class="fn">getRoute</span>(origin, destination, { cityId, alternatives: <span class="kwd">true</span> });
+
+    <span class="cmt">// Step 2: Dijkstra multi-attribute cost evaluation (Traffic Weighted vs Direct Arterial)</span>
+    <span class="kwd">const</span> fastestPath = <span class="fn">dijkstraShortestPath</span>(graph.nodes, graph.edges, startNode.id, targetNode.id, {
+      objective: <span class="str">'TRAFFIC_WEIGHTED'</span>
+    });
+    <span class="kwd">const</span> shortestPath = <span class="fn">dijkstraShortestPath</span>(graph.nodes, graph.edges, startNode.id, targetNode.id, {
+      objective: <span class="str">'DISTANCE'</span>
+    });
+
+    <span class="cmt">// Step 3: Emergency corridor calculation with automated signal preemption</span>
+    <span class="kwd">const</span> normalMinutes = osrmResult.isProviderData ? osrmResult.normalDurationMinutes : Math.<span class="fn">round</span>(fastestPath.totalDurationSeconds / <span class="num">60</span>);
+    <span class="kwd">const</span> priorityMinutes = isEmergency ? Math.<span class="fn">max</span>(<span class="num">2</span>, Math.<span class="fn">round</span>(normalMinutes * <span class="num">0.58</span>)) : normalMinutes;
+    <span class="kwd">const</span> timeSaved = Math.<span class="fn">max</span>(<span class="num">1</span>, normalMinutes - priorityMinutes);
+
+    <span class="kwd">return</span> {
+      recommendedRoute: {
+        routeId: <span class="str">'ROUTE_RECOMMENDED_PRIORITY'</span>,
+        name: <span class="str">'Priority Emergency Corridor (OSRM Snapped)'</span>,
+        pathCoordinates: osrmResult.pathCoordinates?.length ? osrmResult.pathCoordinates : fastestPath.pathCoordinates,
+        distanceKm: osrmResult.distanceKm || +(fastestPath.totalDistanceMeters / <span class="num">1000</span>).<span class="fn">toFixed</span>(<span class="num">2</span>),
+        trafficDurationMinutes: priorityMinutes,
+        normalDurationMinutes: normalMinutes,
+        timeSavedMinutes: timeSaved,
+        recommendationReason: <span class="str">`OSRM road-snapped corridor with automated signal preemption. Saves ~${timeSaved} min.`</span>
+      }
+    };
+  }
+}</div>
+    </div>
+
+    <div class="footer">
+      <div>UTF-8 &nbsp;|&nbsp; JavaScript &nbsp;|&nbsp; Dijkstra &amp; A* Multi-Objective Routing</div>
+      <div>ROAD RESQ AI &bull; Smart Emergency &amp; Traffic Management System</div>
+    </div>
+  </div>
+</body>
+</html>
+
