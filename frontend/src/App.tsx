@@ -16,6 +16,7 @@ import { SignalMonitor } from './components/dashboard/SignalMonitor';
 import { CraneAssistant } from './components/crane/CraneAssistant';
 import { HazardManager } from './components/hazards/HazardManager';
 import { HospitalDirectory } from './components/hospitals/HospitalDirectory';
+import { AdvancedIntelligence } from './components/dashboard/AdvancedIntelligence';
 
 export default function App() {
   const [cities, setCities] = useState<City[]>([]);
@@ -303,6 +304,9 @@ export default function App() {
             routeCoordinates={routeInfo?.pathCoordinates || []}
             alternativeRoutes={alternativeRoutes}
           />
+          <div style={{ padding: '0 16px 16px 16px', overflowY: 'auto' }}>
+            <AdvancedIntelligence cityId={selectedCityId} />
+          </div>
         </main>
 
         {/* Right: Live Traffic Telemetry & Preemption Monitor */}

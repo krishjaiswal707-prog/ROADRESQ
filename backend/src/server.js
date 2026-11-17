@@ -29,6 +29,7 @@ const routingRoutes = require('./routes/routingRoutes');
 const hospitalRoutes = require('./modules/hospitals/hospital.routes');
 const craneRoutes = require('./routes/craneRoutes');
 const hazardRoutes = require('./routes/hazardRoutes');
+const advancedRoutes = require('./routes/advancedRoutes')(io);
 
 app.use('/api/traffic', trafficRoutes);
 app.use('/api/emergency', emergencyRoutes);
@@ -37,6 +38,7 @@ app.use('/api/routes', routingRoutes);
 app.use('/api/hospitals', hospitalRoutes);
 app.use('/api/crane', craneRoutes);
 app.use('/api/hazards', hazardRoutes);
+app.use('/api/v2', advancedRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({
