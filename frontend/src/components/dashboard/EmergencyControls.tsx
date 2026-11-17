@@ -1,5 +1,5 @@
 import type { Hospital, RouteOptimizationData } from '../../types';
-import { Ambulance, Zap, RotateCcw, Hospital as HospitalIcon } from 'lucide-react';
+import { Ambulance, Zap, RotateCcw, Hospital as HospitalIcon, MapPin, Crosshair, Loader2 } from 'lucide-react';
 import { TrafficStatus } from '../traffic/TrafficStatus';
 import { RouteComparison } from './RouteComparison';
 
@@ -15,6 +15,11 @@ interface EmergencyControlsProps {
   trendPrediction: any;
   alternativeRoutes?: any[];
   onOpenHospitalDirectory?: () => void;
+  userLocation?: { lat: number; lng: number } | null;
+  isLocating?: boolean;
+  onLocateUser?: () => void;
+  useLiveLocationForOrigin?: boolean;
+  onToggleUseLiveLocation?: (enabled: boolean) => void;
 }
 
 export function EmergencyControls({
@@ -27,10 +32,92 @@ export function EmergencyControls({
   onCancel,
   routeInfo,
   alternativeRoutes = [],
-  onOpenHospitalDirectory
+  onOpenHospitalDirectory,
+  userLocation,
+  isLocating = false,
+  onLocateUser,
+  useLiveLocationForOrigin = false,
+  onToggleUseLiveLocation
 }: EmergencyControlsProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', minWidth: 0 }}>
+      {/* Origin / Live Location Selector */}
+      <div style={{ backgroundColor: '#151e34', padding: '12px', borderRadius: '6px', border: '1px solid #25355a' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <label style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <MapPin size={12} color="#38bdf8" /> Incident Origin Point:
+          </label>
+          {onLocateUser && (
+            <button
+              onClick={onLocateUser}
+              disabled={isLocating}
+              style={{
+                background: userLocation ? 'rgba(37, 99, 235, 0.2)' : 'none',
+                border: userLocation ? '1px solid #3b82f6' : 'none',
+                borderRadius: '4px',
+                color: userLocation ? '#60a5fa' : '#38bdf8',
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                cursor: isLocating ? 'wait' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '2px 6px'
+              }}
+            >
+              {isLocating ? <Loader2 size={11} className="animate-spin" /> : <Crosshair size={11} />}
+              {isLocating ? 'Locking...' : userLocation ? 'GPS Acquired' : 'Use My GPS'}
+            </button>
+          )}
+        </div>
+
+        {userLocation ? (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '8px 10px',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '4px',
+            fontSize: '0.74rem'
+          }}>
+            <div>
+              <div style={{ fontWeight: 700, color: '#93c5fd' }}>📍 My Real-Time Physical Location</div>
+              <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
+                {userLocation.lat.toFixed(5)}, {userLocation.lng.toFixed(5)}
+              </div>
+            </div>
+            {onToggleUseLiveLocation && (
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#cbd5e1', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={useLiveLocationForOrigin}
+                  onChange={e => onToggleUseLiveLocation(e.target.checked)}
+                  style={{ accentColor: '#2563eb', cursor: 'pointer' }}
+                />
+                Route From Me
+              </label>
+            )}
+          </div>
+        ) : (
+          <div style={{
+            padding: '8px 10px',
+            backgroundColor: '#080c16',
+            border: '1px solid #1e2b48',
+            borderRadius: '4px',
+            fontSize: '0.72rem',
+            color: '#94a3b8',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span>Simulated Sector Incident Site</span>
+            <span style={{ fontSize: '0.68rem', color: '#64748b' }}>Default Origin</span>
+          </div>
+        )}
+      </div>
+
       {/* Target Destination Selector with Recommendation Shortcut */}
       <div style={{ backgroundColor: '#151e34', padding: '12px', borderRadius: '6px', border: '1px solid #25355a' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>

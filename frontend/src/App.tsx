@@ -28,6 +28,12 @@ export default function App() {
   const [alternativeRoutes, setAlternativeRoutes] = useState<any[]>([]);
   const [trendPrediction, setTrendPrediction] = useState<any>(null);
 
+  // Live Physical User GPS State
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userAccuracy, setUserAccuracy] = useState<number | null>(null);
+  const [isLocating, setIsLocating] = useState<boolean>(false);
+  const [useLiveLocationForOrigin, setUseLiveLocationForOrigin] = useState<boolean>(false);
+
   // Active Control Panel Tab: 'EMERGENCY' | 'CRANE' | 'HAZARDS' | 'HOSPITALS'
   const [activeTab, setActiveTab] = useState<'EMERGENCY' | 'CRANE' | 'HAZARDS' | 'HOSPITALS'>('EMERGENCY');
 
@@ -77,16 +83,50 @@ export default function App() {
       .catch(console.error);
   }, [selectedCityId]);
 
+  // Request real browser physical GPS live location
+  const handleLocateUser = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        setUserAccuracy(accuracy);
+        setIsLocating(false);
+        setUseLiveLocationForOrigin(true);
+      },
+      (err) => {
+        console.warn('Geolocation error:', err.message);
+        setIsLocating(false);
+        // Fallback to active city center if permissions blocked or running in non-secure context
+        const fallback = currentCity?.center || { lat: 13.0827, lng: 80.2707 };
+        setUserLocation(fallback);
+        setUserAccuracy(50);
+        setUseLiveLocationForOrigin(true);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
   const handleDispatch = async () => {
     if (!selectedHospital || !currentCity) return;
     setDispatchStatus('DISPATCHING');
 
     try {
-      const origin = {
-        name: `${selectedCityId.toUpperCase()} Emergency Site Alpha`,
-        lat: selectedHospital.lat + 0.012,
-        lng: selectedHospital.lng - 0.015
-      };
+      const origin = (useLiveLocationForOrigin && userLocation)
+        ? {
+            name: 'Citizen Live Physical Location',
+            lat: userLocation.lat,
+            lng: userLocation.lng
+          }
+        : {
+            name: `${selectedCityId.toUpperCase()} Emergency Site Alpha`,
+            lat: selectedHospital.lat + 0.012,
+            lng: selectedHospital.lng - 0.015
+          };
 
       const res = await fetch('http://localhost:5000/api/emergency/dispatch', {
         method: 'POST',
@@ -262,6 +302,11 @@ export default function App() {
               trendPrediction={trendPrediction}
               alternativeRoutes={alternativeRoutes}
               onOpenHospitalDirectory={() => setActiveTab('HOSPITALS')}
+              userLocation={userLocation}
+              isLocating={isLocating}
+              onLocateUser={handleLocateUser}
+              useLiveLocationForOrigin={useLiveLocationForOrigin}
+              onToggleUseLiveLocation={setUseLiveLocationForOrigin}
             />
           )}
 
@@ -317,6 +362,10 @@ export default function App() {
             isGreenCorridorActive={dispatchStatus === 'GREEN_CORRIDOR_ACTIVE'}
             routeCoordinates={routeInfo?.pathCoordinates || []}
             alternativeRoutes={alternativeRoutes}
+            userLocation={userLocation}
+            userAccuracy={userAccuracy}
+            isLocating={isLocating}
+            onLocateUser={handleLocateUser}
           />
 
           {/* Operational Intelligence (SLA Timeline, Predictions, Hospital Ranking, Container Ops) */}
