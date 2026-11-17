@@ -45,11 +45,23 @@ export interface Hospital {
   name: string;
   lat: number;
   lng: number;
-  emergencyBeds: number;
+  emergencyBeds?: number;
   traumaLevel: number;
   phone?: string;
   address?: string;
+  city?: string;
+  area?: string;
+  website?: string;
+  type?: string;
+  specialties?: string[];
   hasEmergencyDepartment?: boolean;
+  source?: string;
+  lastUpdated?: string;
+  routeDistanceKm?: number;
+  estimatedTransitMinutes?: number;
+  routePolyline?: [number, number][];
+  suitabilityScore?: number;
+  rankingExplanation?: string;
 }
 
 // --- 3. Ambulances & Simulation ---

@@ -1,5 +1,5 @@
 import type { Hospital, RouteOptimizationData } from '../../types';
-import { Ambulance, Zap, RotateCcw } from 'lucide-react';
+import { Ambulance, Zap, RotateCcw, Hospital as HospitalIcon } from 'lucide-react';
 import { TrafficStatus } from '../traffic/TrafficStatus';
 import { RouteComparison } from './RouteComparison';
 
@@ -14,6 +14,7 @@ interface EmergencyControlsProps {
   routeInfo: RouteOptimizationData | null;
   trendPrediction: any;
   alternativeRoutes?: any[];
+  onOpenHospitalDirectory?: () => void;
 }
 
 export function EmergencyControls({
@@ -25,15 +26,38 @@ export function EmergencyControls({
   onDispatch,
   onCancel,
   routeInfo,
-  alternativeRoutes = []
+  alternativeRoutes = [],
+  onOpenHospitalDirectory
 }: EmergencyControlsProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', minWidth: 0 }}>
-      {/* Target Destination Selector */}
+      {/* Target Destination Selector with Recommendation Shortcut */}
       <div style={{ backgroundColor: '#151e34', padding: '12px', borderRadius: '6px', border: '1px solid #25355a' }}>
-        <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600, marginBottom: '6px' }}>
-          Destination Facility (OSM Verified):
-        </label>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+          <label style={{ fontSize: '0.72rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
+            Destination Facility (OSM Verified):
+          </label>
+          {onOpenHospitalDirectory && (
+            <button
+              onClick={onOpenHospitalDirectory}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#38bdf8',
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '3px',
+                padding: 0
+              }}
+            >
+              <HospitalIcon size={11} /> Browse Directory
+            </button>
+          )}
+        </div>
+
         <select
           value={selectedHospital?.id || ''}
           onChange={e => {
@@ -60,9 +84,11 @@ export function EmergencyControls({
         </select>
 
         {selectedHospital && (
-          <div style={{ marginTop: '8px', fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between' }}>
-            <span>Emergency Beds: <strong style={{ color: '#34d399' }}>{selectedHospital.emergencyBeds} available</strong></span>
-            <span>Trauma Level: <strong style={{ color: '#60a5fa' }}>Level {selectedHospital.traumaLevel}</strong></span>
+          <div style={{ marginTop: '8px', fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+            <span>Sector: <strong style={{ color: '#f1f5f9' }}>{selectedHospital.area || selectedHospital.city || 'Urban Core'}</strong></span>
+            <span>Trauma Level: <strong style={{ color: selectedHospital.traumaLevel === 1 ? '#ef4444' : '#60a5fa' }}>
+              Level {selectedHospital.traumaLevel} {selectedHospital.traumaLevel === 1 ? '(Apex)' : ''}
+            </strong></span>
           </div>
         )}
       </div>

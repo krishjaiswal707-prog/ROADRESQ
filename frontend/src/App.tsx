@@ -261,6 +261,7 @@ export default function App() {
               routeInfo={routeInfo}
               trendPrediction={trendPrediction}
               alternativeRoutes={alternativeRoutes}
+              onOpenHospitalDirectory={() => setActiveTab('HOSPITALS')}
             />
           )}
 
@@ -278,6 +279,10 @@ export default function App() {
               selectedHospital={selectedHospital}
               onSelectHospital={setSelectedHospital}
               cityId={selectedCityId}
+              onConfirmDestination={(h) => {
+                setSelectedHospital(h);
+                setActiveTab('EMERGENCY');
+              }}
             />
           )}
         </aside>
