@@ -34,11 +34,27 @@ export function CraneAssistant({ cityId }: CraneAssistantProps) {
     fetchCraneData();
   }, [cityId]);
 
+  const handleCompleteRequest = async (requestId: string) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/crane/requests/${requestId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'COMPLETED' })
+      });
+      const data = await res.json();
+      if (data.status === 'SUCCESS') {
+        await fetchCraneData();
+      }
+    } catch (err) {
+      console.error('Failed to complete crane request:', err);
+    }
+  };
+
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      // Mock roadside incident location in city
+      // Incident location in city
       const mockLocation = cityId === 'bengaluru'
         ? { name: 'MG Road Junction', lat: 12.9734, lng: 77.6205 }
         : cityId === 'coimbatore'
@@ -61,12 +77,12 @@ export function CraneAssistant({ cityId }: CraneAssistantProps) {
 
       const data = await res.json();
       if (data.request) {
-        setRequests(prev => [data.request, ...prev]);
         setShowRequestForm(false);
         setDescription('');
+        await fetchCraneData();
       }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to create crane request:', err);
     } finally {
       setSubmitting(false);
     }
@@ -159,15 +175,35 @@ export function CraneAssistant({ cityId }: CraneAssistantProps) {
       {requests.length > 0 && (
         <div>
           <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, marginBottom: '6px' }}>Active Tow Requests:</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
             {requests.map(r => (
-              <div key={r.requestId} style={{ backgroundColor: '#0f172a', padding: '8px 10px', borderRadius: '4px', fontSize: '0.75rem', borderLeft: '3px solid #f59e0b' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div key={r.requestId} style={{ backgroundColor: '#0f172a', padding: '8px 10px', borderRadius: '4px', fontSize: '0.75rem', borderLeft: `3px solid ${r.status === 'COMPLETED' ? '#22c55e' : '#f59e0b'}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <strong style={{ color: '#f8fafc' }}>{r.vehicleCategory} ({r.breakdownType})</strong>
-                  <span style={{ color: '#f59e0b', fontWeight: 700 }}>{r.status}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ color: r.status === 'COMPLETED' ? '#4ade80' : '#f59e0b', fontWeight: 700, fontSize: '0.7rem' }}>{r.status}</span>
+                    {r.status !== 'COMPLETED' && (
+                      <button
+                        onClick={() => handleCompleteRequest(r.requestId)}
+                        title="Mark Recovery Complete"
+                        style={{
+                          backgroundColor: '#15803d',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '3px',
+                          padding: '1px 5px',
+                          fontSize: '0.65rem',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Release Tow
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px' }}>
-                  Location: {r.location?.name || 'Roadside'} • Assigned: <strong style={{ color: '#38bdf8' }}>{r.assignedCraneName || 'Pending'}</strong>
+                  Location: {r.location?.name || 'Roadside'} • Assigned: <strong style={{ color: '#38bdf8' }}>{r.assignedCraneName || 'Pending Fleet Search'}</strong>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.65rem', color: '#64748b', marginTop: '2px' }}>
                   <Clock size={10} /> ETA: ~{r.etaMinutes} min
